@@ -1,13 +1,15 @@
 ﻿using Streamer.bot.Plugin.Interface;
+using WebSocketSharp;
 
 namespace StreamerBotScriptActions.SquadBattle.PredictionForEvent;
 
 using System.Collections.Generic;
+using Newtonsoft.Json;
+using SBCustomClasses.StreamerBotTwitch;
+
 public class CPHInline : CPHInlineBase
 {
-    private List<string> _predictionResultIds;
-    private string _currentPredictionId;
-    private bool _ongoingPrediction;
+
     public bool Execute()
     {
         var squadGroupName = CPH.GetGlobalVar<string>("currentEventGroup");
@@ -22,53 +24,40 @@ public class CPHInline : CPHInlineBase
             predictionOptions.Add(userName);
         }
 
-        _currentPredictionId = CPH.TwitchPredictionCreate(predictionTitle, predictionOptions, 300);
-        _ongoingPrediction = true;
-        //CPH.SetGlobalVar("currentPrediction", predictionId);
-        return true;
-    }
-
-    public bool SetPredictionsId()
-    {
-        if (!_ongoingPrediction)
+        var currentPredictionJson = CPH.TwitchPredictionCreate(predictionTitle, predictionOptions, 300);
+        if (string.IsNullOrEmpty(currentPredictionJson))
         {
             return true;
         }
-
-        if (!CPH.TryGetArg("prediction.outcome0.id", out string leftUserPredictionId))
-        {
-            return false;
-        }
-
-        if (!CPH.TryGetArg("prediction.outcome1.id", out string rightUserPredictionId))
-        {
-            return false;
-        }
-
-        _predictionResultIds = new List<string>
-        {
-            leftUserPredictionId,
-            rightUserPredictionId
-        };
+        var currentPredictionData = JsonConvert.DeserializeObject<TwitchPredictionData>(currentPredictionJson);
+        
+        CPH.SetGlobalVar("currentPredictionData", currentPredictionData);
+        CPH.SetGlobalVar("ongoingPrediction", true);
+        
+        //CPH.SetGlobalVar("currentPrediction", predictionId);
         return true;
     }
 
     public bool TryCancelPrediction()
     {
-        if (!_ongoingPrediction)
+        var ongoingPrediction = CPH.GetGlobalVar<bool>("ongoingPrediction");
+        var currentPrediction = CPH.GetGlobalVar<TwitchPredictionData>("currentPredictionData");
+        if (!ongoingPrediction)
         {
             return true;
         }
 
-        CPH.TwitchPredictionCancel(_currentPredictionId);
-        _currentPredictionId = "";
-        _ongoingPrediction = false;
+        CPH.TwitchPredictionCancel(currentPrediction.Id.ToString());
+        CPH.SetGlobalVar("currentPredictionData", new TwitchPredictionData());
+        CPH.SetGlobalVar("ongoingPrediction", false);
         return true;
     }
 
     public bool SetPredictionResult()
     {
-        if (!_ongoingPrediction)
+        var ongoingPrediction = CPH.GetGlobalVar<bool>("ongoingPrediction");
+        var currentPrediction = CPH.GetGlobalVar<TwitchPredictionData>("currentPredictionData");
+        if (!ongoingPrediction)
         {
             CPH.LogInfo("No ongoing prediction");
             return true;
@@ -92,7 +81,7 @@ public class CPHInline : CPHInlineBase
         var eventUsers = CPH.UsersInGroup(squadGroupName);
         var userStocksLeft = CPH.GetTwitchUserVarById<int>(eventUsers[0].Id, "stocks");
         var userStocksRight = CPH.GetTwitchUserVarById<int>(eventUsers[1].Id, "stocks");
-        if (userStocksLeft != 0 && userStocksRight != 0)
+        if (userStocksLeft > 0 && userStocksRight > 0)
         {
             CPH.StreamDeckShowAlert(originButtonId);
             CPH.ShowToastNotification("prediction_unfinished", "Error en la predicción!", "El score aun no es cero", "", "D:/Streams/Streamer.bot-x64-0.2.2/streamer.bot.png");
@@ -100,10 +89,10 @@ public class CPHInline : CPHInlineBase
         }
 
         //var predictionId = CPH.GetGlobalVar<string>("currentPrediction");
+        CPH.LogInfo($"Current Prediction: {currentPrediction.Id.ToString()} Result Id: {currentPrediction.Outcomes[userIndex].Id.ToString()}");
         CPH.StreamDeckShowOk(originButtonId);
-        CPH.TwitchPredictionResolve(_currentPredictionId, _predictionResultIds[userIndex]);
-        CPH.StreamDeckShowOk(originButtonId);
-        _ongoingPrediction = false;
+        CPH.TwitchPredictionResolve(currentPrediction.Id.ToString(), currentPrediction.Outcomes[userIndex].Id.ToString());
+        CPH.SetGlobalVar("ongoingPrediction", false);
         return true;
     }
 }

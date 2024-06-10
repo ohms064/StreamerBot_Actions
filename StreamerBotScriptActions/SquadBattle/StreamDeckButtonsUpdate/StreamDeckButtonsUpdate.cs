@@ -212,6 +212,7 @@ public class CPHInline : CPHInlineBase
         // Update last selected color with its corresponding color
         var lastSelectedButtonState = CPH.GetTwitchUserVarById<StreamDeckSmashCharacterButtonState>( 
             streamDeckButtonState.UserId, "lastSelectedCharacterButtons");
+        var updateButtonState = true;
         if(lastSelectedButtonState != null)
         {
             if (buttonCharacterDict.TryGetValue(lastSelectedButtonState.ButtonId, out var lastSelectedButton))
@@ -225,27 +226,38 @@ public class CPHInline : CPHInlineBase
                 userSquadRoster.Add("");
                 userSquadRosterLosers.Add(lastSelectedButton.Character);
             }
+            
+            // We pressed the same button as last time
+            updateButtonState = lastSelectedButtonState.ButtonId != streamDeckButtonState.ButtonId;
+            
         }
-
+        
         // Update current button background color and setup character list for player
-        CPH.LogInfo("Updating button color");
-        var currentSelectedButtonCharacterImage = GetImageFilePath(streamDeckButtonState.Character);
-        CPH.StreamDeckSetBackgroundColor(buttonId, SelectedColor);
-        CPH.StreamDeckSetBackgroundLocal(buttonId, currentSelectedButtonCharacterImage);
-        var currentIndexOfCharacter = userSquadRoster.IndexOf(streamDeckButtonState.Character);
-        userSquadRoster.RemoveAt(currentIndexOfCharacter);
-        userSquadRoster.Insert(
-            //eventUsers.FindIndex(user => streamDeckButtonState.UserId == user.Id) == 0 ? userSquadRoster.Count : 0,
-            0,
-            streamDeckButtonState.Character
+        if(updateButtonState)
+        {
+            CPH.LogInfo("Updating button color");
+            var currentSelectedButtonCharacterImage = GetImageFilePath(streamDeckButtonState.Character);
+            CPH.StreamDeckSetBackgroundColor(buttonId, SelectedColor);
+            CPH.StreamDeckSetBackgroundLocal(buttonId, currentSelectedButtonCharacterImage);
+            var currentIndexOfCharacter = userSquadRoster.IndexOf(streamDeckButtonState.Character);
+            userSquadRoster.RemoveAt(currentIndexOfCharacter);
+            userSquadRoster.Insert(
+                //eventUsers.FindIndex(user => streamDeckButtonState.UserId == user.Id) == 0 ? userSquadRoster.Count : 0,
+                0,
+                streamDeckButtonState.Character
             );
+            CPH.SetTwitchUserVarById(streamDeckButtonState.UserId, "lastSelectedCharacterButtons", streamDeckButtonState);
+        }
+        else
+        {
+            CPH.UnsetTwitchUserVarById(streamDeckButtonState.UserId, "lastSelectedCharacterButtons");
+        }
         
         // Update changes to global and user vars
         CPH.LogInfo("Commiting changes");
         CPH.SetGlobalVar("streamDeckCharacterButtons", buttonCharacterDict);
         CPH.SetTwitchUserVarById(streamDeckButtonState.UserId, "squadRoster", userSquadRoster);
         CPH.SetTwitchUserVarById(streamDeckButtonState.UserId, "squadRosterLosers", userSquadRosterLosers);
-        CPH.SetTwitchUserVarById(streamDeckButtonState.UserId, "lastSelectedCharacterButtons", streamDeckButtonState);
         return true;
     }
 
