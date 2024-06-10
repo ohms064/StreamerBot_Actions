@@ -38,6 +38,7 @@ public class CPHInline : CPHInlineBase
             if (twitchUserInfo == null)
             {
                 CPH.ClearUsersFromGroup(squadGroupName);
+                CPH.SendMessage($"Alguien dígale a Ohms que escribió mal a {cleanUserLogin} :v ");
                 CPH.LogDebug($"User wasn't found {userLogin}");
                 return false;
             }
@@ -46,8 +47,9 @@ public class CPHInline : CPHInlineBase
 
             if (!CPH.SendWhisper(twitchUserInfo.UserName, WhisperMessage))
             {
-                CPH.ClearUsersFromGroup(squadGroupName);
-                return false;
+                CPH.ShowToastNotification("Error en susurro", $"No se envío susurro a {twitchUserInfo.UserName}");
+                CPH.SendMessage($"{twitchUserInfo.UserName} no te pude enviar mensaje! Envíame un susurro para activar nuestro chat, o que ohms te diga que otras opciones hay (o si escribió mal tu nombre por wey :v)");
+                return true;
             }
 
             CPH.SetTwitchUserVarById(twitchUserInfo.UserId, "ready", false);

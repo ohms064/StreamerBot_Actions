@@ -19,6 +19,7 @@ public class CPHInline : CPHInlineBase
         var characters = result.Split('\n');
         CPH.TryGetArg("rawInput", out string rawInput);
         CPH.TryGetArg("targetUserId", out string userId);
+        var characterNicknames = CPH.GetGlobalVar<Dictionary<string, string>>("characterNicknames");
         
         // Before starting, we check if the source is different from a whisper
         if (rawInput.StartsWith(CharacterCommand))
@@ -49,6 +50,12 @@ public class CPHInline : CPHInlineBase
         var resultCharactersForUser = new List<string>(userSelectedCharacters.Length);
         foreach (var selectedChar in userSelectedCharacters)
         {
+            // Really only for aegis being Pyra and Mythra, but in case there are more that I haven't think of
+            if (characterNicknames.TryGetValue(selectedChar, out var correctedSelectedChar))
+            {
+                resultCharactersForUser.Add(ExtractFuzzy(correctedSelectedChar, characters));
+                continue;
+            }
             resultCharactersForUser.Add(ExtractFuzzy(selectedChar, characters));
         }
 

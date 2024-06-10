@@ -20,7 +20,7 @@ public class CPHInline : CPHInlineBase
             if (!isUserReady)
             {
                 // If at least one user is not ready we cannot continue
-                CPH.LogDebug("Not ready");
+                CPH.LogDebug($"{user.Username} not ready {eventUsers.Count}");
                 return false;
             }
         }
@@ -39,7 +39,7 @@ public class CPHInline : CPHInlineBase
             if (!isUserReady)
             {
                 // If at least one user is not ready we cannot continue
-                CPH.LogDebug("Not ready");
+                CPH.LogDebug($"{user.Username} not ready");
                 return false;
             }
         }
