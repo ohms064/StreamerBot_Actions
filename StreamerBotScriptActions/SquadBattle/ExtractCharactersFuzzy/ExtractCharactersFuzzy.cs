@@ -29,7 +29,7 @@ public class CPHInline : CPHInlineBase
         else if (rawInput.StartsWith(OverrideCharacterCommand))
         {
             var command = rawInput.Split(' ');
-            var userLogin = CPH.TwitchGetUserInfoByLogin(command[1]);
+            var userLogin = CPH.TwitchGetUserInfoByLogin(command[1].Trim('@'));
             if (userLogin == null)
             {
                 return false;
@@ -69,10 +69,23 @@ public class CPHInline : CPHInlineBase
         return true;
     }
 
-    public string ExtractFuzzy(string value, string[] validValues)
+    private string ExtractFuzzy(string value, string[] validValues)
     {
         var result = Process.ExtractOne(value, validValues);
         CPH.SetGlobalVar("fuzzyResult", result.Value);
         return result.Value.Trim();
+    }
+
+    public bool SelectCharacterFuzzy()
+    {
+        if (!CPH.TryGetArg("character", out string character))
+        {
+            return false;
+        }
+        var result = File.ReadAllText(CharsPath);
+        var characters = result.Split('\n');
+        character = ExtractFuzzy(character, characters);
+        CPH.SetArgument("character", character);
+        return true;
     }
 }

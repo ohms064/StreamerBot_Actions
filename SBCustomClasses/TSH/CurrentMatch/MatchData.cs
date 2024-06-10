@@ -96,7 +96,7 @@ namespace SBCustomClasses.TSH.CurrentMatch
         public long StartggMain { get; set; }
 
         [JsonProperty("mains")]
-        public List<string> Mains { get; set; }
+        public List<List<string>> Mains { get; set; }
 
         [JsonProperty("avatar")]
         public string Avatar { get; set; } = "";

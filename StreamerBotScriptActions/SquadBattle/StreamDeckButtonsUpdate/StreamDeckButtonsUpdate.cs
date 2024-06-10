@@ -144,7 +144,7 @@ public class CPHInline : CPHInlineBase
             foreach (var character in squadRoster)
             {
                 var buttonId = characterButtonsLayout[i][buttonIndex];
-                var imageFile = GetImageFilePath(character);
+                var imageFile = GetImageFilePath(character, eventUsers[i].Id);
                 CPH.LogDebug(imageFile);
                 CPH.StreamDeckSetBackgroundLocal(buttonId, imageFile, UnselectedColor);
 
@@ -217,7 +217,7 @@ public class CPHInline : CPHInlineBase
             if (buttonCharacterDict.TryGetValue(lastSelectedButtonState.ButtonId, out var lastSelectedButton))
             {
                 CPH.LogInfo("Updating last button color");
-                var lastSelectedButtonCharacterImage = GetImageFilePath(lastSelectedButton.Character);
+                var lastSelectedButtonCharacterImage = GetImageFilePath(lastSelectedButton.Character, lastSelectedButtonState.UserId);
                 CPH.StreamDeckSetBackgroundLocal(lastSelectedButtonState.ButtonId, lastSelectedButtonCharacterImage, AlreadyUsedColor);
                 var previousCharacterIndex = userSquadRoster.IndexOf(lastSelectedButton.Character);
                 userSquadRoster.RemoveAt(previousCharacterIndex);
@@ -234,7 +234,7 @@ public class CPHInline : CPHInlineBase
         if(updateButtonState)
         {
             CPH.LogInfo("Updating button color");
-            var currentSelectedButtonCharacterImage = GetImageFilePath(streamDeckButtonState.Character);
+            var currentSelectedButtonCharacterImage = GetImageFilePath(streamDeckButtonState.Character, streamDeckButtonState.UserId);
             CPH.StreamDeckSetBackgroundLocal(buttonId, currentSelectedButtonCharacterImage, SelectedColor);
             CPH.StreamDeckSetBackgroundLocal(indexOfUser == 0 ? LeftButtonIdStocks : RightButtonIdStocks, currentSelectedButtonCharacterImage);
             var currentIndexOfCharacter = userSquadRoster.IndexOf(streamDeckButtonState.Character);
@@ -259,12 +259,21 @@ public class CPHInline : CPHInlineBase
         return true;
     }
 
-    private string GetImageFilePath(string characterStartGgName, int skinIndex = 0)
+    private string GetImageFilePath(string characterStartGgName, string userId)
     {
         var path = $"{PortraitsFilesPath}/chara_1_random_00.png";
+        var skinIndex = 0;
+        if (!string.IsNullOrEmpty(userId))
+        {
+            skinIndex = CPH.GetTwitchUserVarById<int>(userId, $"skin_{characterStartGgName}");
+        }
         if (_smashGameInfo.CharacterToCodename.TryGetValue(characterStartGgName.Trim(), out var result))
         {
-            path = $"{PortraitsFilesPath}/chara_1_{result.Codename}_0{skinIndex}.png";
+            var imagePath = $"{PortraitsFilesPath}/chara_1_{result.Codename}_0{skinIndex}.png";
+            if (File.Exists(imagePath))
+            {
+                path = imagePath;
+            }
         }
         else
         {
@@ -273,6 +282,24 @@ public class CPHInline : CPHInlineBase
 
         CPH.LogInfo($"{characterStartGgName} - Returning path: {path}");
         return path;
+    }
+
+    public bool GetUserCharacterPathWithSkin()
+    {
+        if (!CPH.TryGetArg<string>("userId", out var userId))
+        {
+            return false;
+        }
+        
+        if (!CPH.TryGetArg<string>("character", out var character))
+        {
+            return false;
+        }
+
+        var path = GetImageFilePath(userId, character);
+        CPH.SetArgument("characterPath", path);
+
+        return true;
     }
 
     public bool ResetStreamDeckButtons()

@@ -57,4 +57,66 @@ public class CPHInline : CPHInlineBase
 
         return true;
     }
+
+    public bool SetArgsForUpdateCharacterSkin()
+    {
+        
+        if (!CPH.TryGetArg<string>("rawInput", out var rawInput))
+        {
+            return false;
+        }
+
+        var args = rawInput.Split();
+        if (args.Length < 2)
+        {
+            return false;
+        }
+
+        var character = "";
+        for (var i = 1; i < args.Length; i++)
+        {
+            character += $"{args[i]} ";
+        }
+        if (!int.TryParse(args[0], out var skin))
+        {
+            CPH.SendMessage($"Primero escribe el skin que quieres seguido del nombre del personaje");
+            return false;
+        }
+
+        if (skin < 1 || skin > 8)
+        {
+            CPH.SendMessage("Número de skin es inválido. Debe ser menor que 8 o mayor que 1");
+            return false;
+        }
+
+        skin--;
+        
+        CPH.SetArgument("character", character);
+        CPH.SetArgument("skin", skin);
+
+        return true;
+    }
+
+    public bool UpdateCharacterSkin()
+    {
+        
+        if (!CPH.TryGetArg<string>("userId", out var userId))
+        {
+            return false;
+        }
+        
+        if (!CPH.TryGetArg<string>("character", out var character))
+        {
+            return false;
+        }
+        
+        if (!CPH.TryGetArg<int>("skin", out var skin))
+        {
+            return false;
+        }
+        
+        CPH.SetTwitchUserVarById(userId, $"skin_{character}", skin);
+
+        return true;
+    }
 }

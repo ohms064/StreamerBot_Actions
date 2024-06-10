@@ -26,6 +26,7 @@ public class CPHInline : CPHInlineBase
 
     public bool UpdateCurrentMatch()
     {
+        CPH.LogInfo("Starting match file update");
         var squadGroupName = CPH.GetGlobalVar<string>("currentEventGroup");
         var eventUsers = CPH.UsersInGroup(squadGroupName);
         var entrants = new List<Entrant>();
@@ -54,18 +55,39 @@ public class CPHInline : CPHInlineBase
         };
         _currentMatchData.Team1Score = score[0];
         _currentMatchData.Team2Score = score[1];
-        _currentMatchData.Entrants[0][0].Mains = mains[0];
-        _currentMatchData.Entrants[1][0].Mains = mains[1];
+        CPH.LogInfo("match mains update");
+        _currentMatchData.Entrants[0][0].Mains = GetCharactersWithSkin(eventUsers[0].Id, mains[0]);
+        _currentMatchData.Entrants[1][0].Mains = GetCharactersWithSkin(eventUsers[1].Id, mains[1]);
         _currentMatchData.P1Name = _currentMatchData.Entrants[0][0].GamerTag;
         _currentMatchData.P2Name = _currentMatchData.Entrants[1][0].GamerTag;
         _currentMatchData.HasSelectionData = true;
-        
-        
+
+        CPH.LogInfo("Writing current match");
         CPH.SetGlobalVar("currentMatch", _currentMatchData);
         // Update TSH file
         var currentMatchList = new List<MatchData>{_currentMatchData};
         File.WriteAllText("D:/Streams/localmatch/current_match.json", JsonConvert.SerializeObject(currentMatchList));
         return true;
+    }
+
+    private List<List<string>> GetCharactersWithSkin(string userId, List<string> characters)
+    {
+        var result = new List<List<string>>();
+        
+        if (characters == null)
+        {
+            return result;
+        }
+        foreach (var c in characters)
+        {
+            var innerResult = new List<string>();
+            var userVarName = $"skin_{c}";
+            var skin = CPH.GetTwitchUserVarById<int>(userId, userVarName);
+            innerResult.Add(c);
+            innerResult.Add(skin.ToString());
+            result.Add(innerResult);
+        }
+        return result;
     }
 
     private Entrant GetEntrantFromUserId(string userId)
@@ -76,7 +98,7 @@ public class CPHInline : CPHInlineBase
         var userRoster = CPH.GetTwitchUserVarById<List<string>>(userId, "userRoster");
         entrant.GamerTag = userNickname ?? twitchUser.UserName;
         entrant.Avatar = twitchUser.ProfileImageUrl;
-        entrant.Mains = userRoster;
+        entrant.Mains = GetCharactersWithSkin(userId, userRoster);
         return entrant;
     }
 
