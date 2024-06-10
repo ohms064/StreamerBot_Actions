@@ -9,6 +9,8 @@ using System.IO;
 public class CPHInline : CPHInlineBase
 {
     private const string CharsPath = "D:/Streams/characters.txt";
+    private const string CharacterCommand = "!c ";
+    private const string OverrideCharacterCommand = "!o ";
 
     public bool Execute()
     {
@@ -17,6 +19,32 @@ public class CPHInline : CPHInlineBase
         var characters = result.Split('\n');
         CPH.TryGetArg("rawInput", out string rawInput);
         CPH.TryGetArg("targetUserId", out string userId);
+        
+        // Before starting, we check if the source is different from a whisper
+        if (rawInput.StartsWith(CharacterCommand))
+        {
+            rawInput = rawInput.Remove(0, CharacterCommand.Length);
+        }
+        else if (rawInput.StartsWith(OverrideCharacterCommand))
+        {
+            var command = rawInput.Split(' ');
+            var userLogin = CPH.TwitchGetUserInfoByLogin(command[1]);
+            if (userLogin == null)
+            {
+                return false;
+            }
+            userId = userLogin.UserId;
+            rawInput = "";
+            for (var i = 2; i < command.Length; i++)
+            {
+                rawInput += $"{command[i]} ";
+            }
+
+            rawInput = rawInput.Trim();
+
+        }
+        
+        // Obtain the characters
         var userSelectedCharacters = rawInput.Split(',');
         var resultCharactersForUser = new List<string>(userSelectedCharacters.Length);
         foreach (var selectedChar in userSelectedCharacters)

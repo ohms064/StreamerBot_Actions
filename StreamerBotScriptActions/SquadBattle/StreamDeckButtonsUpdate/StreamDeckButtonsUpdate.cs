@@ -25,7 +25,7 @@ public class CPHInline : CPHInlineBase
         "6dd778bc-3464-4b4d-8dfc-8be6307c654d"
     };
 
-    readonly List<string> _rightCharactersButtonId = new List<string>
+    private readonly List<string> _rightCharactersButtonId = new List<string>
     {
         "1d0a501a-6a70-4f8e-95aa-4c2aa858a97a",
         "86bb6519-47e7-48e4-a960-5eacac61ad63",
@@ -51,8 +51,6 @@ public class CPHInline : CPHInlineBase
         CPH.StreamDeckSetTitle(ContextButtonId, "");
         var smashFileContent = File.ReadAllText(SmashConfigurationFilePath);
         _smashGameInfo = JsonConvert.DeserializeObject<BaseGameInfo>(smashFileContent);
-        
-        var buttonCharacterDict = CPH.GetGlobalVar<Dictionary<string, StreamDeckSmashCharacterButtonState>>("streamDeckCharacterButtons");
     }
 
     public bool Execute()
@@ -148,8 +146,7 @@ public class CPHInline : CPHInlineBase
                 var buttonId = characterButtonsLayout[i][buttonIndex];
                 var imageFile = GetImageFilePath(character);
                 CPH.LogDebug(imageFile);
-                CPH.StreamDeckSetBackgroundColor(buttonId, UnselectedColor);
-                CPH.StreamDeckSetBackgroundLocal(buttonId, imageFile);
+                CPH.StreamDeckSetBackgroundLocal(buttonId, imageFile, UnselectedColor);
 
                 buttonCharacterDict[buttonId] = new StreamDeckSmashCharacterButtonState
                 {
@@ -166,8 +163,7 @@ public class CPHInline : CPHInlineBase
             for (var j = buttonIndex; j < characterButtonsLayout[i].Count; j++)
             {
                 var buttonId = characterButtonsLayout[i][j];
-                CPH.StreamDeckSetBackgroundLocal(buttonId, "");
-                CPH.StreamDeckSetBackgroundColor(buttonId, UnselectedColor);
+                CPH.StreamDeckSetBackgroundLocal(buttonId, "", UnselectedColor);
                 buttonCharacterDict[buttonId] = new StreamDeckSmashCharacterButtonState
                 {
                     ButtonId = buttonId
@@ -189,8 +185,6 @@ public class CPHInline : CPHInlineBase
             return false;
         }
 
-        var squadGroupName = CPH.GetGlobalVar<string>("currentEventGroup");
-        var eventUsers = CPH.UsersInGroup(squadGroupName);
         // Get global and user vars
         var buttonCharacterDict = CPH.GetGlobalVar<Dictionary<string, StreamDeckSmashCharacterButtonState>>("streamDeckCharacterButtons");
         
@@ -199,11 +193,16 @@ public class CPHInline : CPHInlineBase
             CPH.LogInfo("Character not found");
             return false;
         }
+        
+        
+        var squadGroupName = CPH.GetGlobalVar<string>("currentEventGroup");
+        var eventUsers = CPH.UsersInGroup(squadGroupName);
+        var indexOfUser = eventUsers.FindIndex(user => user.Id == streamDeckButtonState.UserId);
 
         CPH.LogInfo("Updating squad");
         var userSquadRoster = CPH.GetTwitchUserVarById<List<string>>(streamDeckButtonState.UserId, "squadRoster");
         var userSquadRosterLosers =
-            CPH.GetTwitchUserVarById<List<string>>(streamDeckButtonState.UserId, "squadRosterLosers");
+            CPH.GetTwitchUserVarById<List<string>>(streamDeckButtonState.UserId, "userSquadRosterLosers");
         if (userSquadRosterLosers == null)
         {
             userSquadRosterLosers = new List<string>();
@@ -219,8 +218,7 @@ public class CPHInline : CPHInlineBase
             {
                 CPH.LogInfo("Updating last button color");
                 var lastSelectedButtonCharacterImage = GetImageFilePath(lastSelectedButton.Character);
-                CPH.StreamDeckSetBackgroundColor(lastSelectedButtonState.ButtonId, AlreadyUsedColor);
-                CPH.StreamDeckSetBackgroundLocal(lastSelectedButtonState.ButtonId, lastSelectedButtonCharacterImage);
+                CPH.StreamDeckSetBackgroundLocal(lastSelectedButtonState.ButtonId, lastSelectedButtonCharacterImage, AlreadyUsedColor);
                 var previousCharacterIndex = userSquadRoster.IndexOf(lastSelectedButton.Character);
                 userSquadRoster.RemoveAt(previousCharacterIndex);
                 userSquadRoster.Add("");
@@ -237,8 +235,8 @@ public class CPHInline : CPHInlineBase
         {
             CPH.LogInfo("Updating button color");
             var currentSelectedButtonCharacterImage = GetImageFilePath(streamDeckButtonState.Character);
-            CPH.StreamDeckSetBackgroundColor(buttonId, SelectedColor);
-            CPH.StreamDeckSetBackgroundLocal(buttonId, currentSelectedButtonCharacterImage);
+            CPH.StreamDeckSetBackgroundLocal(buttonId, currentSelectedButtonCharacterImage, SelectedColor);
+            CPH.StreamDeckSetBackgroundLocal(indexOfUser == 0 ? LeftButtonIdStocks : RightButtonIdStocks, currentSelectedButtonCharacterImage);
             var currentIndexOfCharacter = userSquadRoster.IndexOf(streamDeckButtonState.Character);
             userSquadRoster.RemoveAt(currentIndexOfCharacter);
             userSquadRoster.Insert(
@@ -257,7 +255,7 @@ public class CPHInline : CPHInlineBase
         CPH.LogInfo("Commiting changes");
         CPH.SetGlobalVar("streamDeckCharacterButtons", buttonCharacterDict);
         CPH.SetTwitchUserVarById(streamDeckButtonState.UserId, "squadRoster", userSquadRoster);
-        CPH.SetTwitchUserVarById(streamDeckButtonState.UserId, "squadRosterLosers", userSquadRosterLosers);
+        CPH.SetTwitchUserVarById(streamDeckButtonState.UserId, "userSquadRosterLosers", userSquadRosterLosers);
         return true;
     }
 
@@ -275,5 +273,26 @@ public class CPHInline : CPHInlineBase
 
         CPH.LogInfo($"{characterStartGgName} - Returning path: {path}");
         return path;
+    }
+
+    public bool ResetStreamDeckButtons()
+    {
+        var buttonsLayout = new List<string>
+        {
+            LeftButtonId,
+            RightButtonId,
+            LeftButtonIdStocks,
+            RightButtonIdStocks,
+            ContextButtonId
+        };
+        buttonsLayout.AddRange(_leftCharactersButtonId);
+        buttonsLayout.AddRange(_rightCharactersButtonId);
+
+        foreach (var id in buttonsLayout)
+        {
+            CPH.StreamDeckSetTitle(id, "");
+            CPH.StreamDeckSetBackgroundColor(id, "#00000000");
+        }
+        return true;
     }
 }
