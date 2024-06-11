@@ -59,6 +59,7 @@ public class CPHInline : CPHInlineBase
             resultCharactersForUser.Add(ExtractFuzzy(selectedChar, characters));
         }
 
+        CPH.SetTwitchUserVarById(userId, "originalSquadRoster", resultCharactersForUser);
         CPH.SetTwitchUserVarById(userId, "squadRoster", resultCharactersForUser);
         CPH.SetTwitchUserVarById(userId, "userSquadRosterLosers", new List<string>());
         CPH.SetTwitchUserVarById(userId, "stocks", userSelectedCharacters.Length * 3);

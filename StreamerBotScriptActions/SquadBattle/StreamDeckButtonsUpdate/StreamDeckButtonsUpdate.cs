@@ -41,7 +41,8 @@ public class CPHInline : CPHInlineBase
     private const string SmashConfigurationFilePath =
         "D:/Streams/TournamentStreamHelper/user_data/games/ssbu/base_files/config.json";
 
-    private const string PortraitsFilesPath = "D:/Streams/TournamentStreamHelper/user_data/games/ssbu/full";
+    //private const string PortraitsFilesPath = "D:/Streams/TournamentStreamHelper/user_data/games/ssbu/full";
+    private const string PortraitsFilesPath = "D:\\Streams\\TournamentStreamHelper\\user_data\\games\\ssbu\\base_files\\icon";
 
     private BaseGameInfo _smashGameInfo;
 
@@ -138,15 +139,17 @@ public class CPHInline : CPHInlineBase
         CPH.LogInfo("Character Portraits setting stream deck buttons");
         for (var i = 0; i < eventUsers.Count; i++)
         {
-            var squadRoster = CPH.GetTwitchUserVarById<List<string>>(eventUsers[i].Id, "squadRoster");
+            var originalSquadRoster = CPH.GetTwitchUserVarById<List<string>>(eventUsers[i].Id, "originalSquadRoster");
+            var currentSquadRoster = CPH.GetTwitchUserVarById<List<string>>(eventUsers[i].Id, "squadRoster");
             var buttonIndex = 0;
             CPH.UnsetTwitchUserVarById(eventUsers[i].Id, "lastSelectedCharacterButtons");
-            foreach (var character in squadRoster)
+            foreach (var character in originalSquadRoster)
             {
                 var buttonId = characterButtonsLayout[i][buttonIndex];
                 var imageFile = GetImageFilePath(character, eventUsers[i].Id);
                 CPH.LogDebug(imageFile);
-                CPH.StreamDeckSetBackgroundLocal(buttonId, imageFile, UnselectedColor);
+                var color = currentSquadRoster.Contains(character) ? UnselectedColor : AlreadyUsedColor;
+                CPH.StreamDeckSetBackgroundLocal(buttonId, imageFile, color);
 
                 buttonCharacterDict[buttonId] = new StreamDeckSmashCharacterButtonState
                 {
@@ -231,6 +234,7 @@ public class CPHInline : CPHInlineBase
         }
         
         // Update current button background color and setup character list for player
+        CPH.LogInfo($"Updating button state: {updateButtonState}");
         if(updateButtonState)
         {
             CPH.LogInfo("Updating button color");
@@ -261,7 +265,8 @@ public class CPHInline : CPHInlineBase
 
     private string GetImageFilePath(string characterStartGgName, string userId)
     {
-        var path = $"{PortraitsFilesPath}/chara_1_random_00.png";
+        //var path = $"{PortraitsFilesPath}/chara_1_random_00.png";
+        var path = $"{PortraitsFilesPath}/chara_2_random_00.png";
         var skinIndex = 0;
         if (!string.IsNullOrEmpty(userId))
         {
@@ -269,7 +274,8 @@ public class CPHInline : CPHInlineBase
         }
         if (_smashGameInfo.CharacterToCodename.TryGetValue(characterStartGgName.Trim(), out var result))
         {
-            var imagePath = $"{PortraitsFilesPath}/chara_1_{result.Codename}_0{skinIndex}.png";
+            //var imagePath = $"{PortraitsFilesPath}/chara_1_{result.Codename}_0{skinIndex}.png";
+            var imagePath = $"{PortraitsFilesPath}/chara_2_{result.Codename}_0{skinIndex}.png";
             if (File.Exists(imagePath))
             {
                 path = imagePath;
@@ -304,6 +310,7 @@ public class CPHInline : CPHInlineBase
 
     public bool ResetStreamDeckButtons()
     {
+        CPH.LogInfo("Reseting stream deck buttons");
         var buttonsLayout = new List<string>
         {
             LeftButtonId,
@@ -321,5 +328,10 @@ public class CPHInline : CPHInlineBase
             CPH.StreamDeckSetBackgroundColor(id, "#00000000");
         }
         return true;
+    }
+
+    public bool ForceUpdateStreamDeckButtons()
+    {
+        return false;
     }
 }
