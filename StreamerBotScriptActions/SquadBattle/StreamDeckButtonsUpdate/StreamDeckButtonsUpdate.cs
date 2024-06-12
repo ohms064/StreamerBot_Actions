@@ -45,6 +45,17 @@ public class CPHInline : CPHInlineBase
         var userNameRight = userNicknameRight ?? twitchUserRight.UserName;
         CPH.StreamDeckSetBackgroundUrl(_streamDeckConfiguration.Buttons.LeftButtonId, twitchUserLeft.ProfileImageUrl);
         CPH.StreamDeckSetBackgroundUrl(_streamDeckConfiguration.Buttons.RightButtonId, twitchUserRight.ProfileImageUrl);
+        foreach (var buttonId in _streamDeckConfiguration.Buttons.LeftPlayerPortraits)
+        {
+            CPH.LogInfo($"Updating button {buttonId} with left user image");
+            CPH.StreamDeckSetBackgroundUrl(buttonId, twitchUserLeft.ProfileImageUrl);
+        }
+        
+        foreach (var buttonId in _streamDeckConfiguration.Buttons.RightPlayerPortraits)
+        {
+            CPH.LogInfo($"Updating button {buttonId} with right user image");
+            CPH.StreamDeckSetBackgroundUrl(buttonId, twitchUserRight.ProfileImageUrl);
+        }
         CPH.StreamDeckSetTitle(_streamDeckConfiguration.Buttons.LeftButtonId, userNameLeft);
         CPH.StreamDeckSetTitle(_streamDeckConfiguration.Buttons.RightButtonId, userNameRight);
         return UpdateButtonStocks() && SetupCharacterPortraits();

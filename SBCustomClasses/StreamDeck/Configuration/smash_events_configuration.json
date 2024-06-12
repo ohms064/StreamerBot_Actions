@@ -30,6 +30,12 @@
     "976abb06-5293-4f85-90aa-ec7178dbd0e1",
     "ba8e2945-d5b3-426f-8f27-fea09c3bc7b1"
   ],
+  "right_character_portraits":[
+    "259397e1-569b-4fdf-a3db-6f4577af11ac"
+  ],
+  "left_character_portraits":[
+    "01d1b2c1-39a6-46bf-9e1e-27277b3efeae"
+  ],
   "left_button_id" : "a0cb21de-05b2-477b-a7b1-ec4afcc590be",
   "right_button_id" : "fb313b14-7fb7-4b3c-be36-0090a94fc644",
   "left_stocks_button_id" : "332515bd-64a8-4c0b-bf75-08b98515b327",

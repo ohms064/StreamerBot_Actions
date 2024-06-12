@@ -26,6 +26,12 @@ namespace SBCustomClasses.StreamDeck.Configuration
 
         [JsonProperty("right_character_buttons")]
         public List<string> RightCharacterButtons { get; set; }
+        
+        [JsonProperty("right_character_portraits")]
+        public List<string> RightPlayerPortraits { get; set; }
+        
+        [JsonProperty("left_character_portraits")]
+        public List<string> LeftPlayerPortraits { get; set; }
 
         [JsonProperty("right_stocks_buttons_id")]
         public string RightStocksButtonId { get; set; }
