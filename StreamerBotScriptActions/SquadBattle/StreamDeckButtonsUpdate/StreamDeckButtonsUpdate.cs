@@ -148,8 +148,10 @@ public class CPHInline : CPHInlineBase
                 var buttonId = characterButtonsLayout[i][buttonIndex];
                 var imageFile = GetImageFilePath(character, eventUsers[i].Id);
                 CPH.LogDebug(imageFile);
-                var color = currentSquadRoster.Contains(character) ? UnselectedColor : AlreadyUsedColor;
+                var color = GetCharacterButtonBackgroundColor(eventUsers[i].Id, character);
                 CPH.StreamDeckSetBackgroundLocal(buttonId, imageFile, color);
+                var title = GetCharacterButtonTitle(eventUsers[i].Id, character); 
+                CPH.StreamDeckSetTitle(buttonId, title);
 
                 buttonCharacterDict[buttonId] = new StreamDeckSmashCharacterButtonState
                 {
@@ -173,6 +175,8 @@ public class CPHInline : CPHInlineBase
                 };
             }
         }
+        CPH.UnsetTwitchUserVarById(eventUsers[0].Id, "lastSelectedCharacterButtons");
+        CPH.UnsetTwitchUserVarById(eventUsers[1].Id, "lastSelectedCharacterButtons");
         
         CPH.SetGlobalVar("streamDeckCharacterButtons", buttonCharacterDict);
 
@@ -222,6 +226,7 @@ public class CPHInline : CPHInlineBase
                 CPH.LogInfo("Updating last button color");
                 var lastSelectedButtonCharacterImage = GetImageFilePath(lastSelectedButton.Character, lastSelectedButtonState.UserId);
                 CPH.StreamDeckSetBackgroundLocal(lastSelectedButtonState.ButtonId, lastSelectedButtonCharacterImage, AlreadyUsedColor);
+                CPH.StreamDeckSetTitle(lastSelectedButtonState.ButtonId, "X");
                 var previousCharacterIndex = userSquadRoster.IndexOf(lastSelectedButton.Character);
                 userSquadRoster.RemoveAt(previousCharacterIndex);
                 userSquadRoster.Add("");
@@ -240,6 +245,7 @@ public class CPHInline : CPHInlineBase
             CPH.LogInfo("Updating button color");
             var currentSelectedButtonCharacterImage = GetImageFilePath(streamDeckButtonState.Character, streamDeckButtonState.UserId);
             CPH.StreamDeckSetBackgroundLocal(buttonId, currentSelectedButtonCharacterImage, SelectedColor);
+            CPH.StreamDeckSetTitle(buttonId, "O");
             CPH.StreamDeckSetBackgroundLocal(indexOfUser == 0 ? LeftButtonIdStocks : RightButtonIdStocks, currentSelectedButtonCharacterImage);
             var currentIndexOfCharacter = userSquadRoster.IndexOf(streamDeckButtonState.Character);
             userSquadRoster.RemoveAt(currentIndexOfCharacter);
@@ -333,5 +339,45 @@ public class CPHInline : CPHInlineBase
     public bool ForceUpdateStreamDeckButtons()
     {
         return false;
+    }
+
+    private string GetCharacterButtonBackgroundColor(string userId, string character)
+    {
+        var buttonCharacterDict = CPH.GetGlobalVar<Dictionary<string, StreamDeckSmashCharacterButtonState>>("streamDeckCharacterButtons");
+        var currentSquadRoster = CPH.GetTwitchUserVarById<List<string>>(userId, "squadRoster");
+        var color = currentSquadRoster.Contains(character) ? UnselectedColor : AlreadyUsedColor;
+        
+        var lastSelectedButtonState = CPH.GetTwitchUserVarById<StreamDeckSmashCharacterButtonState>(userId, "lastSelectedCharacterButtons");
+        
+        if (lastSelectedButtonState == null)
+            return color;
+        
+        if (buttonCharacterDict.TryGetValue(lastSelectedButtonState.ButtonId, out var lastSelectedButton))
+        {
+            color = lastSelectedButton.Character == character ? SelectedColor : color;
+        }
+
+
+        return color;
+    }
+    
+    private string GetCharacterButtonTitle(string userId, string character)
+    {
+        var buttonCharacterDict = CPH.GetGlobalVar<Dictionary<string, StreamDeckSmashCharacterButtonState>>("streamDeckCharacterButtons");
+        var currentSquadRoster = CPH.GetTwitchUserVarById<List<string>>(userId, "squadRoster");
+        var title = currentSquadRoster.Contains(character) ? "" : "X";
+        
+        var lastSelectedButtonState = CPH.GetTwitchUserVarById<StreamDeckSmashCharacterButtonState>(userId, "lastSelectedCharacterButtons");
+        
+        if (lastSelectedButtonState == null)
+            return title;
+        
+        if (buttonCharacterDict.TryGetValue(lastSelectedButtonState.ButtonId, out var lastSelectedButton))
+        {
+            title = lastSelectedButton.Character == character ? "O" : title;
+        }
+
+
+        return title;
     }
 }

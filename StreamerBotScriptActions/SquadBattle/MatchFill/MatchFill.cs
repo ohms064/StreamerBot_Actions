@@ -36,7 +36,7 @@ public class CPHInline : CPHInlineBase
         {
             entrants.Add(GetEntrantFromUserId(user.Id));
             var userStocks = CPH.GetTwitchUserVarById<int>(user.Id, "stocks");
-            var userMains = CPH.GetTwitchUserVarById<List<string>>(user.Id, "squadRoster");
+            var userMains = CPH.GetTwitchUserVarById<List<string>>(user.Id, "originalSquadRoster");
             score.Add(userStocks);
             mains.Add(userMains);
         }
