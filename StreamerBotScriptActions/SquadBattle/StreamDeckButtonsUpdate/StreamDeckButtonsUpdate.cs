@@ -7,55 +7,34 @@ using System.IO;
 using Newtonsoft.Json;
 using SBCustomClasses.TSH.Base;
 using SBCustomClasses.StreamDeck;
+using SBCustomClasses.StreamDeck.Configuration;
 
 public class CPHInline : CPHInlineBase
 {
-    private const string LeftButtonId = "a0cb21de-05b2-477b-a7b1-ec4afcc590be";
-    private const string RightButtonId = "fb313b14-7fb7-4b3c-be36-0090a94fc644";
-    private const string LeftButtonIdStocks = "332515bd-64a8-4c0b-bf75-08b98515b327";
-    private const string RightButtonIdStocks = "24c86ecf-c942-4fee-86fb-0a61c42eadb7";
-    private const string ContextButtonId = "ccccae24-f19b-43de-b76a-9b873ee1da9c";
-
-    private readonly List<string> _leftCharactersButtonId = new List<string>
-    {
-        "ecceca82-2149-4812-9883-1d014baffe4a",
-        "59005484-7d6e-4efb-aa63-b242dc72c50a",
-        "c7470403-2f19-48c1-b305-44f833f3b42b",
-        "370e25ba-ecc8-40c0-b0a3-76e0d0c97378",
-        "6dd778bc-3464-4b4d-8dfc-8be6307c654d"
-    };
-
-    private readonly List<string> _rightCharactersButtonId = new List<string>
-    {
-        "1d0a501a-6a70-4f8e-95aa-4c2aa858a97a",
-        "86bb6519-47e7-48e4-a960-5eacac61ad63",
-        "3b9d82a6-34c4-457f-aae2-c960adc856b2",
-        "b92aaa34-1cad-4353-8f0a-04cf753d3769",
-        "57012a0b-fb08-4b6b-8f0b-b797a726d599"
-    };
-
-    private const string SelectedColor = "#1ed86150";
-    private const string AlreadyUsedColor = "#FF000050";
-    private const string UnselectedColor = "#00000050";
-
     private const string SmashConfigurationFilePath =
         "D:/Streams/TournamentStreamHelper/user_data/games/ssbu/base_files/config.json";
 
-    //private const string PortraitsFilesPath = "D:/Streams/TournamentStreamHelper/user_data/games/ssbu/full";
-    private const string PortraitsFilesPath = "D:\\Streams\\TournamentStreamHelper\\user_data\\games\\ssbu\\base_files\\icon";
-
     private BaseGameInfo _smashGameInfo;
-
+    private StreamDeckConfiguration _streamDeckConfiguration;
     public void Init()
     {
+        var json = File.ReadAllText(
+            "C:/Users/Ohms/RiderProjects/SBCustomClasses/SBCustomClasses/StreamDeck/Configuration/smash_events_configuration.json");
+        _streamDeckConfiguration = JsonConvert.DeserializeObject<StreamDeckConfiguration>(json);
         CPH.LogInfo("Setting initial configurations for StreamDeck");
-        CPH.StreamDeckSetTitle(ContextButtonId, "");
+        CPH.StreamDeckSetTitle(_streamDeckConfiguration.Buttons.ContextButtonId, "");
         var smashFileContent = File.ReadAllText(SmashConfigurationFilePath);
         _smashGameInfo = JsonConvert.DeserializeObject<BaseGameInfo>(smashFileContent);
     }
 
     public bool Execute()
     {
+        //if(_streamDeckConfiguration == null)
+        {
+            var json = File.ReadAllText(
+                "C:/Users/Ohms/RiderProjects/SBCustomClasses/SBCustomClasses/StreamDeck/Configuration/smash_events_configuration.json");
+            _streamDeckConfiguration = JsonConvert.DeserializeObject<StreamDeckConfiguration>(json);
+        }
         var squadGroupName = CPH.GetGlobalVar<string>("currentEventGroup");
         var eventUsers = CPH.UsersInGroup(squadGroupName);
         var twitchUserLeft = CPH.TwitchGetExtendedUserInfoById(eventUsers[0].Id);
@@ -64,10 +43,10 @@ public class CPHInline : CPHInlineBase
         var userNameLeft = userNicknameLeft ?? twitchUserLeft.UserName;
         var userNicknameRight = CPH.GetTwitchUserVarById<string>(eventUsers[1].Id, "nickname");
         var userNameRight = userNicknameRight ?? twitchUserRight.UserName;
-        CPH.StreamDeckSetBackgroundUrl(LeftButtonId, twitchUserLeft.ProfileImageUrl);
-        CPH.StreamDeckSetBackgroundUrl(RightButtonId, twitchUserRight.ProfileImageUrl);
-        CPH.StreamDeckSetTitle(LeftButtonId, userNameLeft);
-        CPH.StreamDeckSetTitle(RightButtonId, userNameRight);
+        CPH.StreamDeckSetBackgroundUrl(_streamDeckConfiguration.Buttons.LeftButtonId, twitchUserLeft.ProfileImageUrl);
+        CPH.StreamDeckSetBackgroundUrl(_streamDeckConfiguration.Buttons.RightButtonId, twitchUserRight.ProfileImageUrl);
+        CPH.StreamDeckSetTitle(_streamDeckConfiguration.Buttons.LeftButtonId, userNameLeft);
+        CPH.StreamDeckSetTitle(_streamDeckConfiguration.Buttons.RightButtonId, userNameRight);
         return UpdateButtonStocks() && SetupCharacterPortraits();
     }
 
@@ -77,8 +56,8 @@ public class CPHInline : CPHInlineBase
         var eventUsers = CPH.UsersInGroup(squadGroupName);
         var userStocksLeft = CPH.GetTwitchUserVarById<int>(eventUsers[0].Id, "stocks");
         var userStocksRight = CPH.GetTwitchUserVarById<int>(eventUsers[1].Id, "stocks");
-        CPH.StreamDeckSetTitle(LeftButtonIdStocks, $"{userStocksLeft}");
-        CPH.StreamDeckSetTitle(RightButtonIdStocks, $"{userStocksRight}");
+        CPH.StreamDeckSetTitle(_streamDeckConfiguration.Buttons.LeftStocksButtonId, $"{userStocksLeft}");
+        CPH.StreamDeckSetTitle(_streamDeckConfiguration.Buttons.RightStocksButtonId, $"{userStocksRight}");
         return true;
     }
 
@@ -119,8 +98,8 @@ public class CPHInline : CPHInlineBase
         var eventUsers = CPH.UsersInGroup(squadGroupName);
         var characterButtonsLayout = new List<List<string>>
         {
-            _leftCharactersButtonId,
-            _rightCharactersButtonId
+            _streamDeckConfiguration.Buttons.LeftCharacterButtons,
+            _streamDeckConfiguration.Buttons.RightCharacterButtons
         };
         if (eventUsers.Count != characterButtonsLayout.Count)
         {
@@ -140,14 +119,13 @@ public class CPHInline : CPHInlineBase
         for (var i = 0; i < eventUsers.Count; i++)
         {
             var originalSquadRoster = CPH.GetTwitchUserVarById<List<string>>(eventUsers[i].Id, "originalSquadRoster");
-            var currentSquadRoster = CPH.GetTwitchUserVarById<List<string>>(eventUsers[i].Id, "squadRoster");
             var buttonIndex = 0;
             CPH.UnsetTwitchUserVarById(eventUsers[i].Id, "lastSelectedCharacterButtons");
+            CPH.LogInfo($"Setting buttons from index {i} {buttonIndex}");
             foreach (var character in originalSquadRoster)
             {
                 var buttonId = characterButtonsLayout[i][buttonIndex];
                 var imageFile = GetImageFilePath(character, eventUsers[i].Id);
-                CPH.LogDebug(imageFile);
                 var color = GetCharacterButtonBackgroundColor(eventUsers[i].Id, character);
                 CPH.StreamDeckSetBackgroundLocal(buttonId, imageFile, color);
                 var title = GetCharacterButtonTitle(eventUsers[i].Id, character); 
@@ -161,19 +139,22 @@ public class CPHInline : CPHInlineBase
                     ButtonId = buttonId
                 };
                 buttonIndex++;
+                CPH.LogInfo($"Button {buttonId} for user {i} setup complete with character {character}");
             }
 
-            CPH.LogInfo("Cleaning remaining buttons");
+            CPH.LogInfo($"Cleaning remaining buttons from index {i} {buttonIndex}");
             // Clean the remaining buttons
             for (var j = buttonIndex; j < characterButtonsLayout[i].Count; j++)
             {
                 var buttonId = characterButtonsLayout[i][j];
-                CPH.StreamDeckSetBackgroundLocal(buttonId, "", UnselectedColor);
+                CPH.StreamDeckSetBackgroundColor(buttonId, _streamDeckConfiguration.Theming.AlreadyUsedColor);
                 buttonCharacterDict[buttonId] = new StreamDeckSmashCharacterButtonState
                 {
                     ButtonId = buttonId
                 };
+                CPH.LogInfo($"Button {buttonId} for user {i} clean complete");
             }
+            CPH.LogInfo($"Completing setting up {characterButtonsLayout[i].Count} buttons for {i}");
         }
         CPH.UnsetTwitchUserVarById(eventUsers[0].Id, "lastSelectedCharacterButtons");
         CPH.UnsetTwitchUserVarById(eventUsers[1].Id, "lastSelectedCharacterButtons");
@@ -225,7 +206,7 @@ public class CPHInline : CPHInlineBase
             {
                 CPH.LogInfo("Updating last button color");
                 var lastSelectedButtonCharacterImage = GetImageFilePath(lastSelectedButton.Character, lastSelectedButtonState.UserId);
-                CPH.StreamDeckSetBackgroundLocal(lastSelectedButtonState.ButtonId, lastSelectedButtonCharacterImage, AlreadyUsedColor);
+                CPH.StreamDeckSetBackgroundLocal(lastSelectedButtonState.ButtonId, lastSelectedButtonCharacterImage, _streamDeckConfiguration.Theming.AlreadyUsedColor);
                 CPH.StreamDeckSetTitle(lastSelectedButtonState.ButtonId, "X");
                 var previousCharacterIndex = userSquadRoster.IndexOf(lastSelectedButton.Character);
                 userSquadRoster.RemoveAt(previousCharacterIndex);
@@ -244,9 +225,9 @@ public class CPHInline : CPHInlineBase
         {
             CPH.LogInfo("Updating button color");
             var currentSelectedButtonCharacterImage = GetImageFilePath(streamDeckButtonState.Character, streamDeckButtonState.UserId);
-            CPH.StreamDeckSetBackgroundLocal(buttonId, currentSelectedButtonCharacterImage, SelectedColor);
+            CPH.StreamDeckSetBackgroundLocal(buttonId, currentSelectedButtonCharacterImage, _streamDeckConfiguration.Theming.SelectedColor);
             CPH.StreamDeckSetTitle(buttonId, "O");
-            CPH.StreamDeckSetBackgroundLocal(indexOfUser == 0 ? LeftButtonIdStocks : RightButtonIdStocks, currentSelectedButtonCharacterImage);
+            CPH.StreamDeckSetBackgroundLocal(indexOfUser == 0 ? _streamDeckConfiguration.Buttons.LeftStocksButtonId : _streamDeckConfiguration.Buttons.RightStocksButtonId, currentSelectedButtonCharacterImage);
             var currentIndexOfCharacter = userSquadRoster.IndexOf(streamDeckButtonState.Character);
             userSquadRoster.RemoveAt(currentIndexOfCharacter);
             userSquadRoster.Insert(
@@ -271,8 +252,12 @@ public class CPHInline : CPHInlineBase
 
     private string GetImageFilePath(string characterStartGgName, string userId)
     {
-        //var path = $"{PortraitsFilesPath}/chara_1_random_00.png";
-        var path = $"{PortraitsFilesPath}/chara_2_random_00.png";
+        CPH.LogInfo($"Getting info for {characterStartGgName}");
+        var selectedTheme = CPH.GetGlobalVar<string>("smashIcons");
+        CPH.LogInfo($"Getting info for {selectedTheme}");
+        var buttonIcons = _streamDeckConfiguration.Theming.GetButtonsIcons(selectedTheme);
+        CPH.LogInfo($"Info from {selectedTheme}: {buttonIcons.Path}/{buttonIcons.Filename} {buttonIcons.GetCompletePath(characterStartGgName, 0)}");
+        var path = buttonIcons.DefaultPath;
         var skinIndex = 0;
         if (!string.IsNullOrEmpty(userId))
         {
@@ -280,11 +265,15 @@ public class CPHInline : CPHInlineBase
         }
         if (_smashGameInfo.CharacterToCodename.TryGetValue(characterStartGgName.Trim(), out var result))
         {
-            //var imagePath = $"{PortraitsFilesPath}/chara_1_{result.Codename}_0{skinIndex}.png";
-            var imagePath = $"{PortraitsFilesPath}/chara_2_{result.Codename}_0{skinIndex}.png";
+            var imagePath = buttonIcons.GetCompletePath(result.Codename, skinIndex);
             if (File.Exists(imagePath))
             {
+                CPH.LogInfo($"{result.Codename} was found! {imagePath}");    
                 path = imagePath;
+            }
+            else
+            {
+                CPH.LogInfo($"Codename {result} found but file was not found {imagePath}");
             }
         }
         else
@@ -316,17 +305,8 @@ public class CPHInline : CPHInlineBase
 
     public bool ResetStreamDeckButtons()
     {
-        CPH.LogInfo("Reseting stream deck buttons");
-        var buttonsLayout = new List<string>
-        {
-            LeftButtonId,
-            RightButtonId,
-            LeftButtonIdStocks,
-            RightButtonIdStocks,
-            ContextButtonId
-        };
-        buttonsLayout.AddRange(_leftCharactersButtonId);
-        buttonsLayout.AddRange(_rightCharactersButtonId);
+        CPH.LogInfo("Reset stream deck buttons");
+        var buttonsLayout = _streamDeckConfiguration.Buttons.AllButtons;
 
         foreach (var id in buttonsLayout)
         {
@@ -345,7 +325,7 @@ public class CPHInline : CPHInlineBase
     {
         var buttonCharacterDict = CPH.GetGlobalVar<Dictionary<string, StreamDeckSmashCharacterButtonState>>("streamDeckCharacterButtons");
         var currentSquadRoster = CPH.GetTwitchUserVarById<List<string>>(userId, "squadRoster");
-        var color = currentSquadRoster.Contains(character) ? UnselectedColor : AlreadyUsedColor;
+        var color = currentSquadRoster.Contains(character) ? _streamDeckConfiguration.Theming.UnselectedColor : _streamDeckConfiguration.Theming.AlreadyUsedColor;
         
         var lastSelectedButtonState = CPH.GetTwitchUserVarById<StreamDeckSmashCharacterButtonState>(userId, "lastSelectedCharacterButtons");
         
@@ -354,7 +334,7 @@ public class CPHInline : CPHInlineBase
         
         if (buttonCharacterDict.TryGetValue(lastSelectedButtonState.ButtonId, out var lastSelectedButton))
         {
-            color = lastSelectedButton.Character == character ? SelectedColor : color;
+            color = lastSelectedButton.Character == character ? _streamDeckConfiguration.Theming.SelectedColor : color;
         }
 
 

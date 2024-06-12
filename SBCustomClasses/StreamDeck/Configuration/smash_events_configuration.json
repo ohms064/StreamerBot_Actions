@@ -1,0 +1,56 @@
+﻿{
+"buttons":{
+  "left_character_buttons": [
+    "fd847dea-f830-43d2-9bda-2ccd4bb0a213",
+    "59005484-7d6e-4efb-aa63-b242dc72c50a",
+    "c7470403-2f19-48c1-b305-44f833f3b42b",
+    "370e25ba-ecc8-40c0-b0a3-76e0d0c97378",
+    "6dd778bc-3464-4b4d-8dfc-8be6307c654d",
+    "a1ef3b1f-3476-4f5a-8f86-e565f84700da",
+    "aa6ed952-1d5d-49ff-9d53-a3707a598e76",
+    "b8882c8c-0ed1-44b7-9ad3-01e051b1d2a3",
+    "408f0f2e-a620-4bda-bd48-65a3f054079d",
+    "67b3b008-0baa-4ff1-85ce-0dbb1b8f48d7",
+    "a9084365-75bb-437f-94f9-480104e022a1",
+    "31beaebb-b94b-4547-82f9-97597f3d88a2",
+    "c3bd3548-f2ed-4082-9c6c-4f7769fc445e"
+  ],
+  "right_character_buttons": [
+    "246a69ac-a5a6-4ddf-b73f-661814a9ca59",
+    "ab843aaf-4932-46f2-aff4-ac33afbb8dbd",
+    "3b9d82a6-34c4-457f-aae2-c960adc856b2",
+    "b92aaa34-1cad-4353-8f0a-04cf753d3769",
+    "57012a0b-fb08-4b6b-8f0b-b797a726d599",
+    "72f6e518-667d-4040-8fa9-82babbc2ad44",
+    "3518b50b-42f5-49a0-b37d-89b872803114",
+    "5817b990-c28e-4524-baa4-c0cde5d48186",
+    "7d896091-7180-4b29-9044-76f354b1d246",
+    "9c643905-13cf-4387-82f5-414e5521b20b",
+    "dc392a3d-605d-485a-8b32-33dbba8f7ca7",
+    "976abb06-5293-4f85-90aa-ec7178dbd0e1",
+    "ba8e2945-d5b3-426f-8f27-fea09c3bc7b1"
+  ],
+  "left_button_id" : "a0cb21de-05b2-477b-a7b1-ec4afcc590be",
+  "right_button_id" : "fb313b14-7fb7-4b3c-be36-0090a94fc644",
+  "left_stocks_button_id" : "332515bd-64a8-4c0b-bf75-08b98515b327",
+  "right_stocks_buttons_id" : "24c86ecf-c942-4fee-86fb-0a61c42eadb7",
+  "contexT_buttons_id" : "ccccae24-f19b-43de-b76a-9b873ee1da9c"
+},
+"theming": {
+    "selected_color": "#1ed86150",
+    "already_used_color": "#FF000050",
+    "unselected_color": "#00000050",
+    "smash_icons": {
+      "character_portraits": {
+        "path": "D:/Streams/TournamentStreamHelper/user_data/games/ssbu/full",
+        "filename" : "chara_1_<char_codename>_0<skin_index>.png",
+        "default": "chara_1_random_00.png"
+      },
+      "character_stocks": {
+        "path": "D:/Streams/TournamentStreamHelper/user_data/games/ssbu/base_files/icon",
+        "filename" : "chara_2_<char_codename>_0<skin_index>.png",
+        "default": "chara_2_random_00.png"
+      }
+    }
+  }
+}
