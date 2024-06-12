@@ -26,6 +26,9 @@ namespace SBCustomClasses.StreamDeck
         
         [JsonProperty("button_id")]
         public string ButtonId { get; set; } = "";
+        
+        [JsonProperty("color_state")]
+        public string ColorState { get; set; } = "";
 
         public bool CharacterSet => Character != "";
     }

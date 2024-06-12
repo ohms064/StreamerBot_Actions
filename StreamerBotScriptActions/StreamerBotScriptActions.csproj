@@ -58,6 +58,7 @@
     <ItemGroup>
         <Compile Include="DebugAux\StreamDeckButtonIdentifier\StreamDeckButtonIdentifier.cs" />
         <Compile Include="Properties\AssemblyInfo.cs"/>
+        <Compile Include="SmashGeneral\Random\SmashRandom.cs" />
         <Compile Include="SquadBattle\ExtractCharactersFuzzy\ExtractCharactersFuzzy.cs"/>
         <Compile Include="SquadBattle\ListFill\ListFill.cs"/>
         <Compile Include="SquadBattle\MatchFill\MatchFill.cs" />
