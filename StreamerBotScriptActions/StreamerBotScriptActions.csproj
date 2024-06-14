@@ -56,6 +56,9 @@
         <NoWarn>CS0114</NoWarn> <!-- Ignore CS114 errors -->
     </PropertyGroup>
     <ItemGroup>
+        <Compile Include="CrewBattle\CrewBattlePlayersSetup\CrewBattlePlayersSetup.cs" />
+        <Compile Include="CrewBattle\CrewBattleSetup\CrewBattleSetup.cs" />
+        <Compile Include="CrewBattle\CrewBattleStreamDeckSetup\CrewBattleStreamDeckSetup.cs" />
         <Compile Include="DebugAux\StreamDeckButtonIdentifier\StreamDeckButtonIdentifier.cs" />
         <Compile Include="Properties\AssemblyInfo.cs"/>
         <Compile Include="SmashGeneral\Random\SmashRandom.cs" />
