@@ -67,4 +67,23 @@ public class CPHInline : CPHInlineBase
 
         return result;
     }
+
+    public bool MessageRandomCharacters()
+    {
+        int count = 1;
+        var result = File.ReadAllText(CharsPath);
+        var characters = result.Split('\n');
+        if (CPH.TryGetArg<string>("rawInput", out var rawInput))
+        {
+            if (int.TryParse(rawInput, out var parseResult))
+            {
+                count = parseResult;
+            }
+        }
+        
+        var randomGenerator = new Random(DateTime.Now.Millisecond);
+        var characterResult = GetRandomCharacters(randomGenerator, characters, count);
+        CPH.SendMessage(string.Join(", ", characterResult));
+        return true;
+    }
 }
