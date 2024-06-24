@@ -69,6 +69,7 @@
         <Compile Include="SquadBattle\PredictionForEvent\PredictionForEvent.cs" />
         <Compile Include="SquadBattle\SquadBattle_ObtainUsers\SquadBattle_ObtainUsers.cs"/>
         <Compile Include="SquadBattle\StreamDeckButtonsUpdate\StreamDeckButtonsUpdate.cs" />
+        <Compile Include="SquadBattle\TwitchTitleManager\TwitchTitleManager.cs" />
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\SBCustomClasses\SBCustomClasses.csproj">

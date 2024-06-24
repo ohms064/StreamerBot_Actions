@@ -115,6 +115,7 @@ public class CPHInline : CPHInlineBase
         if (eventUsers.Count != characterButtonsLayout.Count)
         {
             CPH.LogInfo("Error in Character Portraits");
+            CPH.ShowToastNotification("Squad Error", "Númnero de jugadores no es correcto");
             return false;
         }
 
@@ -221,6 +222,7 @@ public class CPHInline : CPHInlineBase
                 CPH.StreamDeckSetBackgroundLocal(lastSelectedButtonId, lastSelectedButtonCharacterImage, _streamDeckConfiguration.Theming.AlreadyUsedColor);
                 CPH.StreamDeckSetTitle(lastSelectedButtonId, "X");
                 var previousCharacterIndex = userSquadRoster.IndexOf(lastSelectedButton.Character);
+                CPH.LogInfo($"Removing {lastSelectedButton.Character} in index {previousCharacterIndex} from {string.Join(", ", userSquadRoster)}");
                 userSquadRoster.RemoveAt(previousCharacterIndex);
                 userSquadRoster.Add("");
                 userSquadRosterLosers.Add(lastSelectedButton.Character);
@@ -229,7 +231,6 @@ public class CPHInline : CPHInlineBase
             
             // We pressed the same button as last time
             updateButtonState = lastSelectedButtonId != streamDeckButtonState.ButtonId;
-            
         }
         
         // Update current button background color and setup character list for player
@@ -249,13 +250,14 @@ public class CPHInline : CPHInlineBase
                 streamDeckButtonState.Character
             );
             streamDeckButtonState.ColorState = _streamDeckConfiguration.Theming.SelectedColor;
+            CPH.LogInfo($"Setting last pressed button {streamDeckButtonState.Character} for {streamDeckButtonState.UserId}");
             CPH.SetTwitchUserVarById(streamDeckButtonState.UserId, "lastSelectedCharacterButtons", streamDeckButtonState.ButtonId);
         }
         else
         {
+            CPH.LogInfo($"Unsetting lastSelectedCharacterButtons for {streamDeckButtonState.UserId}");
             CPH.UnsetTwitchUserVarById(streamDeckButtonState.UserId, "lastSelectedCharacterButtons");
         }
-        
         // Update changes to global and user vars
         CPH.LogInfo("Commiting changes");
         CPH.SetGlobalVar("streamDeckCharacterButtons", buttonCharacterDict);

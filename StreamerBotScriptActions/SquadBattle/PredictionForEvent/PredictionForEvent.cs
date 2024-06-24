@@ -9,7 +9,6 @@ using SBCustomClasses.StreamerBotTwitch;
 
 public class CPHInline : CPHInlineBase
 {
-    private const int PredictionDuration = 60 * 10;
     public bool Execute()
     {
         var squadGroupName = CPH.GetGlobalVar<string>("currentEventGroup");
@@ -24,7 +23,10 @@ public class CPHInline : CPHInlineBase
             predictionOptions.Add(userName);
         }
 
-        var currentPredictionJson = CPH.TwitchPredictionCreate(predictionTitle, predictionOptions, PredictionDuration);
+        var stocks = CPH.GetTwitchUserVarById<int>(eventUsers[0].Id, "stocks");
+        var predictionDuration = ((stocks / 3) + 2) * 60;
+
+        var currentPredictionJson = CPH.TwitchPredictionCreate(predictionTitle, predictionOptions, predictionDuration);
         if (string.IsNullOrEmpty(currentPredictionJson))
         {
             return true;
