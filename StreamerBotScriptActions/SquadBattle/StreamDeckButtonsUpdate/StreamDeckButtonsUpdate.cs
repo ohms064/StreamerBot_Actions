@@ -266,6 +266,55 @@ public class CPHInline : CPHInlineBase
         return true;
     }
 
+    public bool CharacterPortraitPressToggle()
+    {
+        if (!CPH.TryGetArg("sdButtonId", out string buttonId))
+        {
+            CPH.LogInfo("WTF button not found");
+            return false;
+        }
+        
+        var buttonCharacterDict = CPH.GetGlobalVar<Dictionary<string, StreamDeckSmashCharacterButtonState>>("streamDeckCharacterButtons");
+        
+        if (!buttonCharacterDict.TryGetValue(buttonId, out var streamDeckButtonState))
+        {
+            CPH.LogInfo("Character not found");
+            return false;
+        }
+
+        CPH.LogInfo("Updating squad");
+        var userSquadRoster = CPH.GetTwitchUserVarById<List<string>>(streamDeckButtonState.UserId, "squadRoster");
+        var originalSquadRoster = CPH.GetTwitchUserVarById<List<string>>(streamDeckButtonState.UserId, "originalSquadRoster");
+        var userSquadRosterLosers = CPH.GetTwitchUserVarById<List<string>>(streamDeckButtonState.UserId, "userSquadRosterLosers") ??
+                                    new List<string>();
+
+        if (userSquadRoster.Contains(streamDeckButtonState.Character))
+        {
+            userSquadRoster.Remove(streamDeckButtonState.Character);
+            userSquadRosterLosers.Add(streamDeckButtonState.Character);
+            userSquadRoster.Add("");
+        }
+        else if(userSquadRosterLosers.Contains(streamDeckButtonState.Character))
+        {
+            userSquadRoster.RemoveAll((string item) => item == "");
+            userSquadRoster.Add(streamDeckButtonState.Character);
+            userSquadRosterLosers.Remove(streamDeckButtonState.Character);
+            while (userSquadRoster.Count < originalSquadRoster.Count)
+            {
+                userSquadRoster.Add("");
+            }
+        }
+        else
+        {
+            return false;
+        }
+        
+        CPH.SetTwitchUserVarById(streamDeckButtonState.UserId, "squadRoster", userSquadRoster);
+        CPH.SetTwitchUserVarById(streamDeckButtonState.UserId, "userSquadRosterLosers", userSquadRosterLosers);
+        
+        return true;
+    }
+
     private string GetImageFilePath(string characterStartGgName, string userId)
     {
         CPH.LogInfo($"Getting info for {characterStartGgName}");
