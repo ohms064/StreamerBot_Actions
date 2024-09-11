@@ -9,7 +9,8 @@ public class CPHInline : CPHInlineBase
         var squadGroupName = CPH.GetGlobalVar<string>("currentEventGroup");
         var eventUsers = CPH.UsersInGroup(squadGroupName);
 
-        CPH.SetChannelTitle($"SquadBattle! {eventUsers[0].Username} vs {eventUsers[1].Username}");
+        CPH.SetChannelTitle($"El Coliseohms: SquadBattle! {eventUsers[0].Username} vs {eventUsers[1].Username}");
+        
         return true;
     }
 }
