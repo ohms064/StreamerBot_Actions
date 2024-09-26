@@ -25,7 +25,8 @@ namespace SBCustomClasses.StreamDeck.Configuration
         [JsonProperty("right_character_buttons")]
         public List<string> RightCharacterButtons { get; set; }
 
-        [JsonProperty("right_team_buttons")] public List<string> RightTeamButtons { get; set; }
+        [JsonProperty("right_team_buttons")] 
+        public List<string> RightTeamButtons { get; set; }
 
         [JsonProperty("right_character_portraits")]
         public List<string> RightPlayerPortraits { get; set; }
@@ -36,16 +37,20 @@ namespace SBCustomClasses.StreamDeck.Configuration
         [JsonProperty("right_stocks_buttons_id")]
         public string RightStocksButtonId { get; set; }
 
-        [JsonProperty("contexT_buttons_id")] public string ContextButtonId { get; set; }
+        [JsonProperty("contexT_buttons_id")] 
+        public string ContextButtonId { get; set; }
 
-        [JsonProperty("right_button_id")] public string RightButtonId { get; set; }
+        [JsonProperty("right_button_id")] 
+        public string RightButtonId { get; set; }
 
         [JsonProperty("left_character_buttons")]
         public List<string> LeftCharacterButtons { get; set; }
 
-        [JsonProperty("left_team_buttons")] public List<string> LeftTeamButtons { get; set; }
+        [JsonProperty("left_team_buttons")] 
+        public List<string> LeftTeamButtons { get; set; }
 
-        [JsonProperty("left_button_id")] public string LeftButtonId { get; set; }
+        [JsonProperty("left_button_id")] 
+        public string LeftButtonId { get; set; }
 
         public List<string> AllButtons
         {

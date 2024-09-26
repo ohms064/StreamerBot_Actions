@@ -10,7 +10,7 @@
         <AppDesignerFolder>Properties</AppDesignerFolder>
         <RootNamespace>SBCustomClasses</RootNamespace>
         <AssemblyName>SBCustomClasses</AssemblyName>
-        <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
+        <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
         <FileAlignment>512</FileAlignment>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -39,14 +39,16 @@
         <Reference Include="FuzzySharp, Version=1.0.4.0, Culture=neutral, processorArchitecture=MSIL">
             <HintPath>..\packages\FuzzySharp.2.0.2\lib\net461\FuzzySharp.dll</HintPath>
         </Reference>
+        <Reference Include="Streamer.bot.Common">
+          <HintPath>D:\Streams\Streamer.bot-x64-0.2.2\Streamer.bot.Common.dll</HintPath>
+        </Reference>
+        <Reference Include="Streamer.bot.Plugin.Interface">
+          <HintPath>D:\Streams\Streamer.bot-x64-0.2.2\Streamer.bot.Plugin.Interface.dll</HintPath>
+        </Reference>
         <Reference Include="System"/>
         <Reference Include="System.Core"/>
         <Reference Include="System.Data"/>
         <Reference Include="System.Xml"/>
-        <Reference Include="D:\Streams\Streamer.bot-x64-0.2.2\Streamer.bot.Plugin.Interface.dll"/>
-        <Reference Include="D:\Streams\Streamer.bot-x64-0.2.2\Streamer.bot.Common.dll"/>
-        <Reference Include="D:\Streams\Streamer.bot-x64-0.2.2\Streamer.bot.Auth.dll"/>
-        <Reference Include="D:\Streams\Streamer.bot-x64-0.2.2\Streamer.bot.EmoteHandlers.dll"/>
     </ItemGroup>
     <ItemGroup>
         <Compile Include="Properties\AssemblyInfo.cs"/>

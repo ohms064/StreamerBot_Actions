@@ -23,8 +23,10 @@ public class CPHInline : CPHInlineBase
             }
         };
 
-        NumberCharacterButtons(streamDeckConfiguration.Buttons.LeftCharacterButtons, "Left");
-        NumberCharacterButtons(streamDeckConfiguration.Buttons.RightCharacterButtons, "Right");
+        NumberCharacterButtons(streamDeckConfiguration.Buttons.LeftCharacterButtons, "Chars Left");
+        NumberCharacterButtons(streamDeckConfiguration.Buttons.RightCharacterButtons, "Chars Right");
+        NumberCharacterButtons(streamDeckConfiguration.Buttons.LeftTeamButtons, "Player Left");
+        NumberCharacterButtons(streamDeckConfiguration.Buttons.RightTeamButtons, "Player Right");
         
         CPH.StreamDeckSetTitle(streamDeckConfiguration.Buttons.LeftButtonId, "User\nLeft");
         CPH.StreamDeckSetTitle(streamDeckConfiguration.Buttons.RightButtonId, "User\nRight");

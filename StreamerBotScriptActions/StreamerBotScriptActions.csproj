@@ -60,6 +60,10 @@
         <Compile Include="CrewBattle\CrewBattleSetup\CrewBattleSetup.cs" />
         <Compile Include="CrewBattle\CrewBattleStreamDeckSetup\CrewBattleStreamDeckSetup.cs" />
         <Compile Include="DebugAux\StreamDeckButtonIdentifier\StreamDeckButtonIdentifier.cs" />
+        <Compile Include="FirstTo\ListFill\ListFill.cs" />
+        <Compile Include="FirstTo\ListFill\ListFill.cs" />
+        <Compile Include="FirstTo\MatchFill\MatchFill.cs" />
+        <Compile Include="FirstTo\ObtainUsers\ObtainUsers.cs" />
         <Compile Include="Properties\AssemblyInfo.cs"/>
         <Compile Include="SmashGeneral\Random\SmashRandom.cs" />
         <Compile Include="SquadBattle\ExtractCharactersFuzzy\ExtractCharactersFuzzy.cs"/>

@@ -11,16 +11,6 @@ namespace SBCustomClasses.StreamDeck
 {
     public partial class StreamDeckTSHConnection
     {
-        #region Constants
-
-        // TODO: Maybe have this as a config file
-        private const string SmashFileContent =
-            "C:/Users/Ohms/RiderProjects/SBCustomClasses/SBCustomClasses/StreamDeck/Configuration/smash_events_configuration.json";
-
-        private const string StreamDeckConfig =
-            "C:/Users/Ohms/RiderProjects/SBCustomClasses/SBCustomClasses/StreamDeck/Configuration/smash_events_configuration.json";
-        #endregion
-
         private readonly StreamDeckConfiguration _streamDeckConfiguration;
         private TeamInfo _teamLeft;
         private TeamInfo _teamRight;
@@ -47,17 +37,15 @@ namespace SBCustomClasses.StreamDeck
             _teamLeft.TeamName = leftTeam.Name;
             _teamRight.TeamName = rightTeam.Name;
 
-            if (_teamLeft.Count == 0 || _teamRight.Count == 0)
+            if (_teamLeft.TeamMembers.Count == 0 || _teamRight.TeamMembers.Count == 0)
                 return;
 
-            _teamLeft.CurrentSelectedPlayerId = _teamLeft.First().Key;
-            _teamRight.CurrentSelectedPlayerId = _teamRight.First().Key;
+            _teamLeft.CurrentSelectedPlayerId = _teamLeft.TeamMembers.First().Key;
+            _teamRight.CurrentSelectedPlayerId = _teamRight.TeamMembers.First().Key;
             _buttonCharacterDict = new Dictionary<string, StreamDeckSmashCharacterButtonState>();
             InitializePlayersState(CPH);
             InitializeCharactersState(CPH);
             CPH.SetGlobalVar("streamDeckCharacterButtons", _buttonCharacterDict);
-            RefreshStreamDeck(CPH,
-                StreamDeckSections.BothTeams & StreamDeckSections.CurrentPlayerPFP & StreamDeckSections.Characters);
             return;
 
             TeamInfo SetIds(IEnumerable<TeamMemberData> team)
@@ -71,7 +59,7 @@ namespace SBCustomClasses.StreamDeck
                         .ToList();
                     var teamUserInfo = new TeamUserInfo(CPH.TwitchGetExtendedUserInfoById(teamMember.Id),
                         nickname, characters);
-                    result.Add(teamMember.Id, teamUserInfo);
+                    result.TeamMembers.Add(teamMember.Id, teamUserInfo);
                     result.OrderedPlayers.Add(teamMember.Id);
                     CPH.SetTwitchUserVarById(teamMember.Id, "squadRoster", characters);
                     CPH.SetTwitchUserVarById(teamMember.Id, "originalSquadRoster", characters);
@@ -89,7 +77,7 @@ namespace SBCustomClasses.StreamDeck
             
             void SetupPlayerFor(TeamInfo team, IEnumerable<string> buttonsId)
             {
-                foreach (var zip in buttonsId.Zip(team,
+                foreach (var zip in buttonsId.Zip(team.TeamMembers,
                              (buttonId, player) => new { buttonId, player }))
                 {
                     var buttonState = new StreamDeckSmashCharacterButtonState
@@ -137,46 +125,50 @@ namespace SBCustomClasses.StreamDeck
             }
 
             TeamInfo currentTeam;
-            StreamDeckSections sectionsToUpdate = StreamDeckSections.Characters;
-            if (_teamLeft.ContainsKey(state.UserId))
+            StreamDeckSections sectionsToUpdate = StreamDeckSections.Characters | StreamDeckSections.CurrentPlayerCharacter;
+            if (_teamLeft.TeamMembers.ContainsKey(state.UserId))
             {
                 currentTeam = _teamLeft;
-                sectionsToUpdate &= StreamDeckSections.TeamLeft;
+                sectionsToUpdate |= StreamDeckSections.TeamLeft;
             }
-            else if (_teamRight.ContainsKey(state.UserId))
+            else if (_teamRight.TeamMembers.ContainsKey(state.UserId))
             {
                 currentTeam = _teamRight;
-                sectionsToUpdate &= StreamDeckSections.TeamRight;
+                sectionsToUpdate |= StreamDeckSections.TeamRight;
             }
             else
             {
                 return;
             }
             
-            if (string.IsNullOrEmpty(currentTeam.LastSelectedCharacterButtonId) && 
+            if (!string.IsNullOrEmpty(currentTeam.LastSelectedCharacterButtonId) && 
                 _buttonCharacterDict.TryGetValue(currentTeam.LastSelectedCharacterButtonId, out var previousState))
             {
                 previousState.ColorState = _streamDeckConfiguration.Theming.AlreadyUsedColor;
                 previousState.SelectedState = SelectionState.Disabled;
-                currentTeam[state.UserId].Characters.Remove(previousState.Character);
-                currentTeam[state.UserId].Characters.Add("");
+                currentTeam.TeamMembers[state.UserId].Characters.Remove(previousState.Character);
+                currentTeam.TeamMembers[state.UserId].Characters.Add("");
             }
 
             if (currentTeam.LastSelectedCharacterButtonId != pressedButtonId)
             {
                 state.SelectedState = SelectionState.Selected;
                 state.ColorState = _streamDeckConfiguration.Theming.SelectedColor;
-                currentTeam[state.UserId].Characters.Remove(state.Character);
-                currentTeam[state.UserId].Characters.Insert(0, state.Character);
+                currentTeam.TeamMembers[state.UserId].Characters.Remove(state.Character);
+                currentTeam.TeamMembers[state.UserId].Characters.Insert(0, state.Character);
             }
             else
             {
                 state.SelectedState = SelectionState.Unselected;
-                state.ColorState = _streamDeckConfiguration.Theming.UnselectedColor;
+                state.ColorState = _streamDeckConfiguration.Theming.AlreadyUsedColor;
+                currentTeam.TeamMembers[state.UserId].Characters.Remove(state.Character);
+                currentTeam.TeamMembers[state.UserId].Characters.Add("");
             }
 
             currentTeam.LastSelectedCharacterButtonId = pressedButtonId;
             CPH.SetGlobalVar("streamDeckCharacterButtons", _buttonCharacterDict);
+            var eventTeams = new[] { _teamLeft, _teamRight };
+            CPH.LogDebug($"Teams (Stock update): \n{JsonConvert.SerializeObject(eventTeams)}");
             RefreshStreamDeck(CPH, sectionsToUpdate);
         }
         
@@ -188,23 +180,27 @@ namespace SBCustomClasses.StreamDeck
             }
 
             TeamInfo currentTeam;
-            StreamDeckSections sectionsToUpdate = StreamDeckSections.TeamMembers;
-            if (_teamLeft.ContainsKey(state.UserId))
+            var sectionsToUpdate = StreamDeckSections.TeamMembers | StreamDeckSections.Characters
+                | StreamDeckSections.CurrentPlayerPFP | StreamDeckSections.CurrentPlayerCharacter;
+            List<string> characterButtons;
+            if (_teamLeft.TeamMembers.ContainsKey(state.UserId))
             {
                 currentTeam = _teamLeft;
-                sectionsToUpdate &= StreamDeckSections.TeamLeft;
+                sectionsToUpdate |= StreamDeckSections.TeamLeft;
+                characterButtons = _streamDeckConfiguration.Buttons.LeftCharacterButtons;
             }
-            else if (_teamRight.ContainsKey(state.UserId))
+            else if (_teamRight.TeamMembers.ContainsKey(state.UserId))
             {
                 currentTeam = _teamRight;
-                sectionsToUpdate &= StreamDeckSections.TeamRight;
+                sectionsToUpdate |= StreamDeckSections.TeamRight;
+                characterButtons = _streamDeckConfiguration.Buttons.RightCharacterButtons;
             }
             else
             {
                 return;
             }
             
-            if (string.IsNullOrEmpty(currentTeam.LastSelectedPlayerButtonId) && 
+            if (!string.IsNullOrEmpty(currentTeam.LastSelectedPlayerButtonId) && 
                 _buttonCharacterDict.TryGetValue(currentTeam.LastSelectedPlayerButtonId, out var previousState))
             {
                 previousState.ColorState = _streamDeckConfiguration.Theming.AlreadyUsedColor;
@@ -220,6 +216,24 @@ namespace SBCustomClasses.StreamDeck
                 currentTeam.OrderedPlayers.Remove(state.UserId);
                 currentTeam.OrderedPlayers.Insert(0, state.UserId);
                 currentTeam.CurrentSelectedPlayerId = state.UserId;
+                foreach(var buttonId in characterButtons)
+                {
+                    _buttonCharacterDict.Remove(buttonId);
+                }
+                
+                foreach (var zip in characterButtons.Zip(currentTeam.CurrentSelectedPlayer.Characters,
+                             (buttonId, character) => new { buttonId, character }))
+                {
+                    var buttonState = new StreamDeckSmashCharacterButtonState
+                    {
+                        ButtonId = zip.buttonId,
+                        Character = zip.character,
+                        UserId = currentTeam.CurrentSelectedPlayer.TwitchUserInfo.UserId,
+                        SelectedState = SelectionState.Unselected,
+                        ColorState = _streamDeckConfiguration.Theming.UnselectedColor
+                    };
+                    _buttonCharacterDict.Add(zip.buttonId, buttonState);
+                }
             }
             else
             {
@@ -231,20 +245,44 @@ namespace SBCustomClasses.StreamDeck
             CPH.SetGlobalVar("streamDeckCharacterButtons", _buttonCharacterDict);
             RefreshStreamDeck(CPH, sectionsToUpdate);
         }
+        
+        private void CurrentCharacterButtonPressed(IInlineInvokeProxy CPH, int stockAdd, bool leftTeam)
+        {
+            var side = leftTeam ? "Right" : "Left";
+            CPH.LogInfo($"Updating stocks: {side} team");
+            TeamInfo team;
+            var streamDeckSection = StreamDeckSections.CurrentStocks;
+            if (leftTeam)
+            {
+                team = _teamLeft;
+                streamDeckSection |= StreamDeckSections.TeamLeft;
+            }
+            else
+            {
+                team = _teamRight;
+                streamDeckSection |= StreamDeckSections.TeamRight;
+            }
+            
+            team.Stocks += stockAdd;
+            var eventTeams = new[] { _teamLeft, _teamRight };
+            CPH.LogDebug($"Teams (Stock update): \n{JsonConvert.SerializeObject(eventTeams)}");
+            RefreshStreamDeck(CPH, streamDeckSection);
+        }
 
         #region StreamDeck Refresh
 
         // ReSharper disable once MemberCanBePrivate.Global
-        public void RefreshStreamDeck(IInlineInvokeProxy CPH, StreamDeckSections updateParts)
+        internal void RefreshStreamDeck(IInlineInvokeProxy CPH, StreamDeckSections updateParts)
         {
+            CPH.LogInfo($"Refreshing stream deck: {updateParts}");
             #region PFP
 
-            if ((updateParts & StreamDeckSections.CurrentPlayerPFP & StreamDeckSections.TeamLeft) != 0)
+            if (updateParts.HasFlag(StreamDeckSections.CurrentPlayerPFP | StreamDeckSections.TeamLeft))
                 RefreshPortraits(CPH, _streamDeckConfiguration.Buttons.LeftButtonId,
                     _streamDeckConfiguration.Buttons.LeftPlayerPortraits,
                     _teamLeft.CurrentSelectedPlayer.TwitchUserInfo.ProfileImageUrl, _teamLeft.CurrentSelectedPlayer.UserName);
 
-            if ((updateParts & StreamDeckSections.CurrentPlayerPFP & StreamDeckSections.TeamRight) != 0)
+            if (updateParts.HasFlag(StreamDeckSections.CurrentPlayerPFP | StreamDeckSections.TeamRight))
                 RefreshPortraits(CPH, _streamDeckConfiguration.Buttons.RightButtonId,
                     _streamDeckConfiguration.Buttons.RightPlayerPortraits,
                     _teamRight.CurrentSelectedPlayer.TwitchUserInfo.ProfileImageUrl, _teamRight.CurrentSelectedPlayer.UserName);
@@ -253,48 +291,51 @@ namespace SBCustomClasses.StreamDeck
 
             #region Characters
 
-            if ((updateParts & StreamDeckSections.Characters & StreamDeckSections.TeamLeft) != 0)
+            if (updateParts.HasFlag(StreamDeckSections.Characters | StreamDeckSections.TeamLeft))
                 RefreshCharacters(CPH, _streamDeckConfiguration.Buttons.LeftCharacterButtons);
 
-            if ((updateParts & StreamDeckSections.Characters & StreamDeckSections.TeamRight) != 0)
+            if (updateParts.HasFlag(StreamDeckSections.Characters | StreamDeckSections.TeamRight))
                 RefreshCharacters(CPH, _streamDeckConfiguration.Buttons.RightCharacterButtons);
 
             #endregion
 
             #region Current Player Character
 
-            if ((updateParts & StreamDeckSections.CurrentPlayerCharacter & StreamDeckSections.TeamLeft) != 0)
-                CPH.StreamDeckSetBackgroundLocal(_streamDeckConfiguration.Buttons.LeftStocksButtonId,
-                    _teamLeft.CurrentSelectedPlayer.TwitchUserInfo.ProfileImageUrl);
-            if ((updateParts & StreamDeckSections.CurrentPlayerCharacter & StreamDeckSections.TeamRight) != 0)
-                CPH.StreamDeckSetBackgroundLocal(_streamDeckConfiguration.Buttons.RightStocksButtonId,
-                    _teamRight.CurrentSelectedPlayer.TwitchUserInfo.ProfileImageUrl);
+            if (updateParts.HasFlag(StreamDeckSections.CurrentPlayerCharacter | StreamDeckSections.TeamLeft))
+            {
+                RefreshCurrentSelectedCharacter(CPH, _streamDeckConfiguration.Buttons.LeftStocksButtonId, _teamLeft);
+            }
+            if (updateParts.HasFlag(StreamDeckSections.CurrentPlayerCharacter | StreamDeckSections.TeamRight))
+            {
+                RefreshCurrentSelectedCharacter(CPH, _streamDeckConfiguration.Buttons.RightStocksButtonId, _teamRight);
+            }
 
             #endregion
 
             #region Stocks
 
-            if ((updateParts & StreamDeckSections.CurrentStocks & StreamDeckSections.TeamLeft) != 0)
-                UpdateStocks(CPH, _streamDeckConfiguration.Buttons.LeftStocksButtonId, _teamLeft.Stocks);
+            if (updateParts.HasFlag(StreamDeckSections.CurrentStocks | StreamDeckSections.TeamLeft))
+                RefreshStocks(CPH, _streamDeckConfiguration.Buttons.LeftStocksButtonId, _teamLeft.Stocks);
 
-            if ((updateParts & StreamDeckSections.CurrentStocks & StreamDeckSections.TeamRight) != 0)
-                UpdateStocks(CPH, _streamDeckConfiguration.Buttons.RightStocksButtonId, _teamRight.Stocks);
+            if (updateParts.HasFlag(StreamDeckSections.CurrentStocks | StreamDeckSections.TeamRight))
+                RefreshStocks(CPH, _streamDeckConfiguration.Buttons.RightStocksButtonId, _teamRight.Stocks);
 
             #endregion
 
             #region Team Members
 
-            if ((updateParts & StreamDeckSections.TeamMembers & StreamDeckSections.TeamLeft) != 0)
+            if (updateParts.HasFlag(StreamDeckSections.TeamMembers | StreamDeckSections.TeamLeft))
             {
                 RefreshPlayers(CPH, _streamDeckConfiguration.Buttons.LeftTeamButtons);
             }
             
-            if ((updateParts & StreamDeckSections.TeamMembers & StreamDeckSections.TeamRight) != 0)
+            if (updateParts.HasFlag(StreamDeckSections.TeamMembers | StreamDeckSections.TeamRight))
             {
                 RefreshPlayers(CPH, _streamDeckConfiguration.Buttons.RightTeamButtons);
             }
 
             #endregion
+            CPH.LogInfo($"Refreshed stream deck: {updateParts}");
         }
 
         private void RefreshCharacters(IInlineInvokeProxy CPH, IEnumerable<string> characterButtonIds)
@@ -314,8 +355,8 @@ namespace SBCustomClasses.StreamDeck
             {
                 if (!_buttonCharacterDict.TryGetValue(id, out var buttonState)) return;
 
-                if (_teamLeft.TryGetValue(buttonState.UserId, out var user) ||
-                    _teamRight.TryGetValue(buttonState.UserId, out user))
+                if (_teamLeft.TeamMembers.TryGetValue(buttonState.UserId, out var user) ||
+                    _teamRight.TeamMembers.TryGetValue(buttonState.UserId, out user))
                 {
                     CPH.StreamDeckSetBackgroundUrl(id, user.TwitchUserInfo.ProfileImageUrl, buttonState.ColorState);
                     return;
@@ -329,14 +370,32 @@ namespace SBCustomClasses.StreamDeck
         private void RefreshPortraits(IInlineInvokeProxy CPH, string buttonId,
             IEnumerable<string> otherPortraitsButtonId, string profileImageUrl, string userName)
         {
+            CPH.LogInfo($"Refreshing portrait: {buttonId}");
             CPH.StreamDeckSetBackgroundUrl(buttonId, profileImageUrl);
             CPH.StreamDeckSetTitle(buttonId, userName);
-            foreach (var id in otherPortraitsButtonId) CPH.StreamDeckSetBackgroundUrl(id, profileImageUrl);
+            foreach (var id in otherPortraitsButtonId)
+            {
+                CPH.StreamDeckSetBackgroundUrl(id, profileImageUrl);
+                CPH.StreamDeckSetTitle(id, userName);
+            }
         }
-
-        private void UpdateStocks(IInlineInvokeProxy CPH, string buttonId, int stocks)
+        
+        private void RefreshStocks(IInlineInvokeProxy CPH, string buttonId, int stocks)
         {
             CPH.StreamDeckSetTitle(buttonId, $"{stocks}");
+        }
+
+        private void RefreshCurrentSelectedCharacter(IInlineInvokeProxy CPH, string buttonId, TeamInfo team)
+        {
+            if (!_buttonCharacterDict.TryGetValue(team.LastSelectedCharacterButtonId, out var lastButtonState))
+            {
+                CPH.StreamDeckSetBackgroundColor(buttonId, _streamDeckConfiguration.Theming.UnselectedColor);
+                return;
+            }
+
+            var characterFilePath = GetImageFilePath(CPH, lastButtonState.Character,
+                team.CurrentSelectedPlayer.TwitchUserInfo.UserId);
+            CPH.StreamDeckSetBackgroundLocal(buttonId, characterFilePath);
         }
 
         private string GetImageFilePath(IInlineInvokeProxy CPH, string characterStartGgName, string userId)
@@ -373,6 +432,18 @@ namespace SBCustomClasses.StreamDeck
             return path;
         }
 
+        public bool ResetStreamDeckButtons(IInlineInvokeProxy CPH)
+        {
+            CPH.LogInfo("Reset stream deck buttons");
+            var buttonsLayout = _streamDeckConfiguration.Buttons.AllButtons;
+
+            foreach (var id in buttonsLayout)
+            {
+                CPH.StreamDeckSetTitle(id, "");
+                CPH.StreamDeckSetBackgroundColor(id, "#00000000");
+            }
+            return true;
+        }
         #endregion
     }
 }

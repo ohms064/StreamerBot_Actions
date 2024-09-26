@@ -7,8 +7,8 @@ using System.Linq;
 
 public class CPHInline : CPHInlineBase
 {
-    private const string CrewBattleTeamNameRight = "Crew Battle Team Left";
-    private const string CrewBattleTeamNameLeft = "Crew Battle Team Right";
+    private const string CrewBattleTeamNameRight = "Crew Battle Team Right";
+    private const string CrewBattleTeamNameLeft = "Crew Battle Team Left";
     public bool Execute()
     {
         if (!CPH.TryGetArg("rawInput", out string rawInput))
@@ -24,7 +24,7 @@ public class CPHInline : CPHInlineBase
         }
         
         CPH.SetGlobalVar(CrewBattleTeamNameLeft, teamNames[0]);
-        CPH.SetGlobalVar(CrewBattleTeamNameLeft, teamNames[1]);
+        CPH.SetGlobalVar(CrewBattleTeamNameRight, teamNames[1]);
         
         return true;
     }
