@@ -2,19 +2,18 @@
 
 namespace StreamerBotScriptActions.SmashGeneral.Random;
 
+using SBCustomClasses.StreamDeck;
 using System.Collections.Generic;
 using System.IO;
 using System;
 
 public class CPHInline : CPHInlineBase
 {
-    private const string CharsPath = "D:/Streams/characters.txt";
-    private const string CharacterCommand = "!c ";
-    private const string OverrideCharacterCommand = "!o ";
 
     public bool Execute()
     {
-        var result = File.ReadAllText(CharsPath);
+        var pathManager = new PathManager(CPH);
+        var result = File.ReadAllText(pathManager.CharactersFile);
         var characters = result.Split('\n');
         if (!CPH.TryGetArg("rawInput", out string rawInput))
         {
@@ -71,7 +70,8 @@ public class CPHInline : CPHInlineBase
     public bool MessageRandomCharacters()
     {
         int count = 1;
-        var result = File.ReadAllText(CharsPath);
+        var pathManager = new PathManager(CPH);
+        var result = File.ReadAllText(pathManager.CharactersFile);
         var characters = result.Split('\n');
         if (CPH.TryGetArg<string>("rawInput", out var rawInput))
         {

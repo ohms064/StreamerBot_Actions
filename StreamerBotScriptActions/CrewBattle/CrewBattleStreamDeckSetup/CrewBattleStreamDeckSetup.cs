@@ -256,7 +256,8 @@ public class CPHInline : CPHInlineBase
         CPH.LogInfo($"Getting info for {characterStartGgName}");
         var selectedTheme = CPH.GetGlobalVar<string>("smashIcons");
         CPH.LogInfo($"Getting info for {selectedTheme}");
-        var buttonIcons = _streamDeckConfiguration.Theming.GetButtonsIcons(selectedTheme);
+        var currentGame = CPH.GetGlobalVar<string>("CurrentGameId");
+        var buttonIcons = _streamDeckConfiguration.Theming.GetButtonsIcons(currentGame, selectedTheme, out bool found);
         CPH.LogInfo($"Info from {selectedTheme}: {buttonIcons.Path}/{buttonIcons.Filename} {buttonIcons.GetCompletePath(characterStartGgName, 0)}");
         var path = buttonIcons.DefaultPath;
         var skinIndex = 0;

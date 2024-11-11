@@ -247,7 +247,7 @@ public class CPHInline : CPHInlineBase
             }
             else if (_userInput.Contains("open.spotify.com/playlist/") || _userInput.Contains("open.spotify.com/album/") || _userInput.Contains("open.spotify.com/artist/"))
             {
-                CPH.SendMessage("You can only request 'songs' via Spotify link. No links to artists, albums, or playlists!", true);
+                CPH.SendMessage("Solo puedes agregar links de canciones, no se aceptan playlists, artistas o álbumes", true);
                 return false;
             }
             else
@@ -537,10 +537,10 @@ public class CPHInline : CPHInlineBase
         try
         {
             _accessToken = CPH.GetGlobalVar<string>("spotifyAccessToken", true);
-            while (CPH.GetGlobalVar<bool>("lockStatus", false))
-            {
-                CPH.Wait(100);
-            }
+            // while (CPH.GetGlobalVar<bool>("lockStatus", false))
+            // {
+            //     CPH.Wait(100);
+            // }
 
             string apiUrl = "https://api.spotify.com/v1/me/player";
             string commandEndpoint = "";

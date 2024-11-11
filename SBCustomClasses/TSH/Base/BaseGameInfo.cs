@@ -10,18 +10,8 @@ namespace SBCustomClasses.TSH.Base
 {
     public partial class BaseGameInfo
     {
-        [JsonProperty("smashgg_game_id")] public long SmashggGameId { get; set; }
-
         [JsonProperty("character_to_codename")]
         public Dictionary<string, CharacterBaseInfo> CharacterToCodename { get; set; }
-
-        [JsonProperty("name")] public string Name { get; set; }
-
-        [JsonProperty("description")] public string Description { get; set; }
-
-        [JsonProperty("version")] public string Version { get; set; }
-
-        [JsonProperty("challonge_game_id")] public long ChallongeGameId { get; set; }
 
         public string GetCodename(string characterName)
         {
@@ -35,13 +25,7 @@ namespace SBCustomClasses.TSH.Base
 
     public partial class CharacterBaseInfo
     {
-        [JsonProperty("smashgg_name")] public string SmashggName { get; set; }
-
         [JsonProperty("codename")] public string Codename { get; set; }
-
-        [JsonProperty("locale")] public Dictionary<string, string> LocaleNames { get; set; }
-
-        [JsonProperty("skin_name", NullValueHandling = NullValueHandling.Ignore)]
         public Dictionary<string, SkinName> SkinName { get; set; }
     }
 

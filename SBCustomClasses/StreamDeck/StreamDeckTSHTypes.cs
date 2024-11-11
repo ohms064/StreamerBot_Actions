@@ -6,7 +6,7 @@ using Streamer.bot.Plugin.Interface.Model;
 namespace SBCustomClasses.StreamDeck
 {
     [System.Flags]
-    internal enum StreamDeckSections
+    public enum StreamDeckSections
     {
         TeamMembers = 1 << 0,
         Characters = 1 << 1,
@@ -53,7 +53,7 @@ namespace SBCustomClasses.StreamDeck
     internal  class TeamUserInfo
     {
         public TwitchUserInfoEx TwitchUserInfo { get; private set; }
-        public List<string> Characters { get; private set; }
+        public List<string> Characters { get; internal set; }
         public List<string> OriginalCharacters { get; private set; }
         private string Nickname { get; set; }
 

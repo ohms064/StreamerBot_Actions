@@ -49,7 +49,7 @@ namespace SBCustomClasses.StreamDeck
             return;
 
             TeamInfo SetIds(IEnumerable<TeamMemberData> team)
-            {
+            { 
                 var result = new TeamInfo();
                 foreach (var teamMember in team)
                 {
@@ -272,7 +272,7 @@ namespace SBCustomClasses.StreamDeck
         #region StreamDeck Refresh
 
         // ReSharper disable once MemberCanBePrivate.Global
-        internal void RefreshStreamDeck(IInlineInvokeProxy CPH, StreamDeckSections updateParts)
+        public void RefreshStreamDeck(IInlineInvokeProxy CPH, StreamDeckSections updateParts)
         {
             CPH.LogInfo($"Refreshing stream deck: {updateParts}");
             #region PFP
@@ -403,14 +403,24 @@ namespace SBCustomClasses.StreamDeck
             CPH.LogInfo($"Getting info for {characterStartGgName}");
             var selectedTheme = CPH.GetGlobalVar<string>("smashIcons");
             CPH.LogInfo($"Getting info for {selectedTheme}");
-            var buttonIcons = _streamDeckConfiguration.Theming.GetButtonsIcons(selectedTheme);
+            var currentGame = CPH.GetGlobalVar<string>("CurrentGameId");
+            CPH.LogDebug($"Getting game {currentGame}");
+            var buttonIcons = _streamDeckConfiguration.Theming.GetButtonsIcons(currentGame, selectedTheme, out bool found);
+            if (!found)
+            {
+                CPH.LogError($"{currentGame}|{selectedTheme} were not found in stream deck configuration");
+            }
             CPH.LogInfo(
-                $"Info from {selectedTheme}: {buttonIcons.Path}/{buttonIcons.Filename} {buttonIcons.GetCompletePath(characterStartGgName, 0)}");
+                $"Info from {selectedTheme}: {buttonIcons.Path}/{buttonIcons.Filename}\n{buttonIcons.GetCompletePath(characterStartGgName, 0)}");
             var path = buttonIcons.DefaultPath;
             var skinIndex = 0;
             if (!string.IsNullOrEmpty(userId))
-                skinIndex = CPH.GetTwitchUserVarById<int>(userId, $"skin_{characterStartGgName}");
-            if (_smashGameInfo.CharacterToCodename.TryGetValue(characterStartGgName.Trim(), out var result))
+            {
+                var userVarName = $"skin_{characterStartGgName}";
+                CPH.LogInfo($"Stream deck getting user character with skin: {userVarName} for user {userId}");
+                skinIndex = CPH.GetTwitchUserVarById<int>(userId, userVarName);
+            }
+            if (_gameInfo.CharacterToCodename.TryGetValue(characterStartGgName.Trim(), out var result))
             {
                 var imagePath = buttonIcons.GetCompletePath(result.Codename, skinIndex);
                 if (File.Exists(imagePath))
@@ -432,6 +442,11 @@ namespace SBCustomClasses.StreamDeck
             return path;
         }
 
+        /// <summary>
+        /// Reset all editable buttons. Names and images are set to default. 
+        /// </summary>
+        /// <param name="CPH">Streamer bot interface</param>
+        /// <returns></returns>
         public bool ResetStreamDeckButtons(IInlineInvokeProxy CPH)
         {
             CPH.LogInfo("Reset stream deck buttons");

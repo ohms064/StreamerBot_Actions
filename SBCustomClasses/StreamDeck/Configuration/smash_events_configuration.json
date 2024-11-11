@@ -72,22 +72,47 @@
     "right_button_id": "fb313b14-7fb7-4b3c-be36-0090a94fc644",
     "left_stocks_button_id": "332515bd-64a8-4c0b-bf75-08b98515b327",
     "right_stocks_buttons_id": "24c86ecf-c942-4fee-86fb-0a61c42eadb7",
-    "contexT_buttons_id": "ccccae24-f19b-43de-b76a-9b873ee1da9c"
+    "contexT_buttons_id": "2O--mkUvvm1fRLfva2ZES"
   },
   "theming": {
     "selected_color": "#1ed86150",
     "already_used_color": "#FF000050",
     "unselected_color": "#00000050",
-    "smash_icons": {
-      "character_portraits": {
-        "path": "D:/Streams/TournamentStreamHelper/user_data/games/ssbu/full",
-        "filename": "chara_1_<char_codename>_0<skin_index>.png",
-        "default": "chara_1_random_00.png"
+    "game_icons":
+    {
+      "ssbu":
+      {
+        "character_portraits": {
+          "path": "D:/Streams/TournamentStreamHelper/user_data/games/ssbu/full",
+          "filename": "chara_1_<char_codename>_0<skin_index>.png",
+          "default": "chara_1_random_00.png"
+        },
+        "character_stocks": {
+          "path": "D:/Streams/TournamentStreamHelper/user_data/games/ssbu/base_files/icon",
+          "filename": "chara_2_<char_codename>_0<skin_index>.png",
+          "default": "chara_2_random_00.png"
+        }
       },
-      "character_stocks": {
-        "path": "D:/Streams/TournamentStreamHelper/user_data/games/ssbu/base_files/icon",
-        "filename": "chara_2_<char_codename>_0<skin_index>.png",
-        "default": "chara_2_random_00.png"
+      "roa2":
+      {
+        "character_portraits": {
+          "path": "C:/Users/Ohms/RiderProjects/TournamentStreamHelper/user_data/games/roa2/costume",
+          "filename": "<char_codename>-0<skin_index>.png",
+          "default": "chara_1_random_00.png"
+        },
+        "character_stocks": {
+          "path": "C:/Users/Ohms/RiderProjects/TournamentStreamHelper/user_data/games/roa2/costume",
+          "filename": "<char_codename>-0<skin_index>.png",
+          "default": "default.png"
+        }
+      },
+      "sf6":
+      {
+        "character_stocks": {
+          "path": "C:/Users/Ohms/RiderProjects/TournamentStreamHelper/user_data/games/sf6/pixel_art_restore",
+          "filename": "<char_codename>_0.png",
+          "default": "default.png"
+        }
       }
     }
   }

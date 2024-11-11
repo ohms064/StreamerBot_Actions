@@ -67,6 +67,8 @@ public class CPHInline : CPHInlineBase
 
             CPH.SetTwitchUserVarById(twitchUserInfo.UserId, "ready", false);
         }
+        
+        CPH.SetGlobalVar("First To", ftResult);
 
         return true;
     }

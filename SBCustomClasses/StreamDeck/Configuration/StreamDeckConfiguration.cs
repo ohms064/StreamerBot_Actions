@@ -91,17 +91,20 @@ namespace SBCustomClasses.StreamDeck.Configuration
     {
         [JsonProperty("already_used_color")] public string AlreadyUsedColor { get; set; }
 
-        [JsonProperty("smash_icons")] public Dictionary<string, CharacterIcons> SmashIcons { get; set; }
+        [JsonProperty("game_icons")] public Dictionary<string, Dictionary<string, CharacterIcons>> GameIcons { get; set; }
 
         [JsonProperty("unselected_color")] public string UnselectedColor { get; set; }
 
         [JsonProperty("selected_color")] public string SelectedColor { get; set; }
 
-        public CharacterIcons GetButtonsIcons(string key)
+        public CharacterIcons GetButtonsIcons(string gameId, string key, out bool found)
         {
-            if (!SmashIcons.TryGetValue(key, out var result)) return result;
+            found = true;
+            if (!GameIcons.TryGetValue(gameId, out var gameConfigs)) return GameIcons["ssbu"]["character_stocks"];
+            if (gameConfigs.TryGetValue(key, out var result)) return result;
 
-            return SmashIcons["character_stocks"];
+            found = false;
+            return GameIcons["ssbu"]["character_stocks"];
         }
     }
 

@@ -13,15 +13,20 @@ namespace SBCustomClasses.StreamDeck
 {
     public partial class StreamDeckTSHConnection
     {
-        private BaseGameInfo _smashGameInfo;
+        private BaseGameInfo _gameInfo;
         #region Current Match
         private MatchData _currentMatchData;
 
-        private void UpdateCurrentMatch(IInlineInvokeProxy CPH)
+        /// <summary>
+        /// Updates match on TSH
+        /// </summary>
+        /// <param name="CPH">Streamerbot interface</param>
+        // ReSharper disable once MemberCanBePrivate.Global
+        public void UpdateCurrentMatch(IInlineInvokeProxy CPH)
         {
             CPH.LogInfo("Updating current match");
             var eventTeams = new[] { _teamLeft, _teamRight };
-            var score = eventTeams.Select(t => t.Stocks).ToList();
+            var score = new[] {_teamLeft.Stocks, _teamRight.Stocks};
             _currentMatchData = new MatchData(){Entrants = new List<List<MatchEntrant>>()};
             CPH.LogDebug($"Teams: \n{JsonConvert.SerializeObject(eventTeams)}");
             
@@ -67,6 +72,7 @@ namespace SBCustomClasses.StreamDeck
                 var innerResult = new List<string>();
                 var userVarName = $"skin_{c}";
                 var skin = CPH.GetTwitchUserVarById<int>(userId, userVarName);
+                CPH.LogInfo($"Getting character with skin: {userVarName} for user {userId}");
                 innerResult.Add(c);
                 innerResult.Add(skin.ToString());
                 result.Add(innerResult);
@@ -143,10 +149,11 @@ namespace SBCustomClasses.StreamDeck
             return true;
         }
         #endregion
-        
-        public void UpdateFromTSHFile()
+
+        private void UpdateFromTSHFile(string path)
         {
-            _smashGameInfo = JsonConvert.DeserializeObject<BaseGameInfo>(SmashFileContent);
+            var smashGameJson = File.ReadAllText(path);
+            _gameInfo = JsonConvert.DeserializeObject<BaseGameInfo>(smashGameJson);
         }
     }
 }

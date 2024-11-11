@@ -2,20 +2,22 @@
 
 namespace StreamerBotScriptActions.SquadBattle.ExtractCharactersFuzzy;
 
+using Newtonsoft.Json;
+using SBCustomClasses.StreamDeck;
 using System.Collections.Generic;
 using FuzzySharp;
 using System.IO;
 
 public class CPHInline : CPHInlineBase
 {
-    private const string CharsPath = "D:/Streams/characters.txt";
     private const string CharacterCommand = "!c ";
     private const string OverrideCharacterCommand = "!o ";
 
     public bool Execute()
     {
         CPH.LogDebug("Starting Fuzzy search");
-        var result = File.ReadAllText(CharsPath);
+        var pathManager = new PathManager(CPH);
+        var result = File.ReadAllText(pathManager.CharactersFile);
         var characters = result.Split('\n');
         CPH.TryGetArg("rawInput", out string rawInput);
         CPH.TryGetArg("targetUserId", out string userId);
@@ -65,7 +67,7 @@ public class CPHInline : CPHInlineBase
         CPH.SetTwitchUserVarById(userId, "stocks", userSelectedCharacters.Length * 3);
         CPH.SetTwitchUserVarById(userId, "ready", true);
 
-        CPH.LogDebug(@"Completed Fuzzy search {resultCharactersForUser}");
+        CPH.LogDebug($"Completed Fuzzy search {JsonConvert.SerializeObject(resultCharactersForUser)}");
 
         return true;
     }
@@ -83,7 +85,8 @@ public class CPHInline : CPHInlineBase
         {
             return false;
         }
-        var result = File.ReadAllText(CharsPath);
+        var pathManager = new PathManager(CPH);
+        var result = File.ReadAllText(pathManager.CharactersFile);
         var characters = result.Split('\n');
         character = ExtractFuzzy(character, characters);
         CPH.SetArgument("character", character);

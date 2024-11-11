@@ -54,6 +54,7 @@
         <Compile Include="Properties\AssemblyInfo.cs"/>
         <Compile Include="StreamDeck\CharacterFuzzyTools.cs"/>
         <Compile Include="StreamDeck\Configuration\StreamDeckConfiguration.cs"/>
+        <Compile Include="StreamDeck\PathManager.cs" />
         <Compile Include="StreamDeck\StreamDeckController.cs"/>
         <Compile Include="StreamDeck\StreamDeckTSHConnection.cs" />
         <Compile Include="StreamDeck\StreamDeckTSHTypes.cs"/>
