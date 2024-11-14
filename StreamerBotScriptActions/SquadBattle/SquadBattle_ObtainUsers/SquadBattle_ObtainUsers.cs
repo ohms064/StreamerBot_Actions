@@ -5,118 +5,61 @@ namespace StreamerBotScriptActions.SquadBattle.SquadBattle_ObtainUsers;
 
 public class CPHInline : CPHInlineBase
 {
+    private const string LeftTeam = "teamLeft";
+    private const string RightTeam = "teamRight";
+    private const string LeftTeamName = "leftTeamName";
+    private const string RightTeamName = "rightTeamName";
     private const string WhisperMessage =
         "Envía los personajes que usarás separados por coma, intenta escribir los personajes por su nombre correcto y no por apodos. Por ejemplo: Pit, Duck Hunt, Mario, R.O.B.";
-
-    public void Init()
-    {
-        // Clean all the groups maybe
-        /* Maybe this still doesn't exist
-        if (!CPH.GroupExists(""))
-        {
-            CPH.AddGroup(SquadGroupName);
-        }
-        */
-        CPH.ClearUsersFromGroup("Squad Battle");
-    }
 
     public bool Execute()
     {
         // your main code goes here
         CPH.LogDebug("Started");
         CPH.TryGetArg("rawInput", out string rawInput);
-
-        var squadGroupName = CPH.GetGlobalVar<string>("currentEventGroup");
-
-        CPH.ClearUsersFromGroup(squadGroupName);
+        CPH.ClearUsersFromGroup(LeftTeam);
+        CPH.ClearUsersFromGroup(RightTeam);
 
         var userNames = rawInput.Split(' ');
-        foreach (var userLogin in userNames)
+
+        if (userNames.Length != 2)
+        {
+            return false;
+        }
+
+        return AddToTeam(userNames[0], LeftTeam, LeftTeamName) && AddToTeam(userNames[1], RightTeam, RightTeamName);
+
+        bool AddToTeam(string userLogin, string teamName, string teamKey)
         {
             var cleanUserLogin = userLogin.Trim('@');
             var twitchUserInfo = CPH.TwitchGetUserInfoByLogin(cleanUserLogin);
             if (twitchUserInfo == null)
             {
-                CPH.ClearUsersFromGroup(squadGroupName);
                 CPH.SendMessage($"Alguien dígale a Ohms que escribió mal a {cleanUserLogin} :v ");
                 CPH.LogDebug($"User wasn't found {userLogin}");
                 return false;
             }
 
-            CPH.AddUserIdToGroup(twitchUserInfo.UserId, Platform.Twitch, squadGroupName);
+            CPH.AddUserIdToGroup(twitchUserInfo.UserId, Platform.Twitch, teamName);
+            CPH.SetTwitchUserVarById(twitchUserInfo.UserId, "ready", false);
+            CPH.SetGlobalVar(teamKey, twitchUserInfo.UserName);
 
-            if (!CPH.SendWhisper(twitchUserInfo.UserName, WhisperMessage))
+            var whisper = CPH.GetGlobalVar<bool>("sendWhisper");
+
+            if (!whisper)
             {
-                CPH.ShowToastNotification("Error en susurro", $"No se envío susurro a {twitchUserInfo.UserName}");
-                CPH.SendMessage($"{twitchUserInfo.UserName} no te pude enviar mensaje! Envíame un susurro para activar nuestro chat, o que ohms te diga que otras opciones hay (o si escribió mal tu nombre por wey :v)");
                 return true;
             }
 
-            CPH.SetTwitchUserVarById(twitchUserInfo.UserId, "ready", false);
-        }
+            if (CPH.SendWhisper(twitchUserInfo.UserName, WhisperMessage))
+            {
+                return true;
+            }
+            
+            CPH.ShowToastNotification("Error en susurro", $"No se envío susurro a {twitchUserInfo.UserName}");
+            CPH.SendMessage($"{twitchUserInfo.UserName} no te pude enviar mensaje! Envíame un susurro para activar nuestro chat, o que ohms te diga que otras opciones hay (o si escribió mal tu nombre por wey :v)");
 
-        return true;
-    }
-
-    public bool SetArgsForUpdateCharacterSkin()
-    {
-        
-        if (!CPH.TryGetArg<string>("rawInput", out var rawInput))
-        {
-            return false;
+            return true;
         }
-
-        var args = rawInput.Split();
-        if (args.Length < 2)
-        {
-            return false;
-        }
-
-        var character = "";
-        for (var i = 1; i < args.Length; i++)
-        {
-            character += $"{args[i]} ";
-        }
-        if (!int.TryParse(args[0], out var skin))
-        {
-            CPH.SendMessage($"Primero escribe el skin que quieres seguido del nombre del personaje");
-            return false;
-        }
-
-        if (skin < 1 || skin > 8)
-        {
-            CPH.SendMessage("Número de skin es inválido. Debe ser menor que 8 o mayor que 1");
-            return false;
-        }
-
-        skin--;
-        
-        CPH.SetArgument("character", character);
-        CPH.SetArgument("skin", skin);
-
-        return true;
-    }
-
-    public bool UpdateCharacterSkin()
-    {
-        
-        if (!CPH.TryGetArg<string>("userId", out var userId))
-        {
-            return false;
-        }
-        
-        if (!CPH.TryGetArg<string>("character", out var character))
-        {
-            return false;
-        }
-        
-        if (!CPH.TryGetArg<int>("skin", out var skin))
-        {
-            return false;
-        }
-        
-        CPH.SetTwitchUserVarById(userId, $"skin_{character}", skin);
-
-        return true;
     }
 }

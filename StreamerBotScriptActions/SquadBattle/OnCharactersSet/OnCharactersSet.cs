@@ -1,4 +1,5 @@
 ﻿using Streamer.bot.Plugin.Interface;
+using Streamer.bot.Plugin.Interface.Model;
 
 namespace StreamerBotScriptActions.SquadBattle.OnCharactersSet;
 
@@ -6,14 +7,20 @@ using System.Collections.Generic;
 using System.Text;
 public class CPHInline : CPHInlineBase
 {
+    private const string LeftTeam = "teamLeft";
+    private const string RightTeam = "teamRight";
+    private const string TeamRoster = "currentRoster";
+    
     public bool Execute()
     {
         if (!CheckIfListeningForPlayers())
         {
             return false;
         }
-        var squadGroupName = CPH.GetGlobalVar<string>("currentEventGroup");
-        var eventUsers = CPH.UsersInGroup(squadGroupName);
+
+        var eventUsers = new List<GroupUser>();
+        eventUsers.AddRange(CPH.UsersInGroup(LeftTeam));
+        eventUsers.AddRange(CPH.UsersInGroup(RightTeam));
         foreach (var user in eventUsers)
         {
             var isUserReady = CPH.GetTwitchUserVarById<bool>(user.Id, "ready");
@@ -31,8 +38,9 @@ public class CPHInline : CPHInlineBase
 
     public bool CheckIfPlayersReady()
     {
-        var squadGroupName = CPH.GetGlobalVar<string>("currentEventGroup");
-        var eventUsers = CPH.UsersInGroup(squadGroupName);
+        var eventUsers = new List<GroupUser>();
+        eventUsers.AddRange(CPH.UsersInGroup(LeftTeam));
+        eventUsers.AddRange(CPH.UsersInGroup(RightTeam));
         foreach (var user in eventUsers)
         {
             var isUserReady = CPH.GetTwitchUserVarById<bool>(user.Id, "ready");
@@ -55,15 +63,16 @@ public class CPHInline : CPHInlineBase
 
     public bool AnnounceCharacters()
     {
-        var squadGroupName = CPH.GetGlobalVar<string>("currentEventGroup");
-        var eventUsers = CPH.UsersInGroup(squadGroupName);
+        var eventUsers = new List<GroupUser>();
+        eventUsers.AddRange(CPH.UsersInGroup(LeftTeam));
+        eventUsers.AddRange(CPH.UsersInGroup(RightTeam));
         const string separator = ", ";
         CPH.TwitchAnnounce(
             "Se registraron los siguientes personajes, avisen de cualquier error que pronto comenzaremos");
         foreach(var user in eventUsers)
         {
             var message = new StringBuilder();
-            var squadRoster = CPH.GetTwitchUserVarById<List<string>>(user.Id, "squadRoster");
+            var squadRoster = CPH.GetTwitchUserVarById<List<string>>(user.Id, TeamRoster);
             message.Append($"{user.Username} [{squadRoster.Count}]: ");
             foreach (var character in squadRoster)
             {

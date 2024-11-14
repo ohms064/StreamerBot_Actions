@@ -72,6 +72,7 @@
         <Compile Include="SmashGeneral\SkinManager\SmashSkinManager.cs" />
         <Compile Include="SmashGeneral\StreamDeckController\StreamDeckController.cs" />
         <Compile Include="SmashGeneral\StreamDeckGeneral\StreamDeckGeneral.cs" />
+        <Compile Include="SmashGeneral\TitleManager\TitleManager.cs" />
         <Compile Include="SquadBattle\ExtractCharactersFuzzy\ExtractCharactersFuzzy.cs"/>
         <Compile Include="SquadBattle\ListFill\ListFill.cs"/>
         <Compile Include="SquadBattle\MatchFill\MatchFill.cs" />
@@ -80,6 +81,7 @@
         <Compile Include="SquadBattle\SquadBattle_ObtainUsers\SquadBattle_ObtainUsers.cs"/>
         <Compile Include="SquadBattle\StreamDeckButtonsUpdate\StreamDeckButtonsUpdate.cs" />
         <Compile Include="SquadBattle\TwitchTitleManager\TwitchTitleManager.cs" />
+        <Compile Include="SquadBattle\UserReady\UserReady.cs" />
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\SBCustomClasses\SBCustomClasses.csproj">

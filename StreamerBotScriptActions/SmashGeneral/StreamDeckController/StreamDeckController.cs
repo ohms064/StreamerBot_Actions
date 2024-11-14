@@ -16,6 +16,8 @@ public class CPHInline : CPHInlineBase
     private string _matchType = "";
     private const string LeftTeam = "teamLeft";
     private const string RightTeam = "teamRight";
+    private const string LeftTeamName = "leftTeamName";
+    private const string RightTeamName = "rightTeamName";
     private const string TeamRoster = "currentRoster";
     
     private const string CharacterCommand = "!c ";
@@ -72,8 +74,8 @@ public class CPHInline : CPHInlineBase
     {
         var leftTeamGroup = CPH.UsersInGroup(LeftTeam);
         var rightTeamGroup = CPH.UsersInGroup(RightTeam);
-        var leftTeam = CreateTeam(leftTeamGroup, CPH.GetGlobalVar<string>("leftTeamName"));
-        var rightTeam = CreateTeam(rightTeamGroup, CPH.GetGlobalVar<string>("rightTeamName"));
+        var leftTeam = CreateTeam(leftTeamGroup, CPH.GetGlobalVar<string>(LeftTeamName));
+        var rightTeam = CreateTeam(rightTeamGroup, CPH.GetGlobalVar<string>(RightTeamName));
         
         _streamDeck.InitConnection(CPH, leftTeam, rightTeam);
         _matchPlaying = true;

@@ -58,7 +58,7 @@ public class CPHInline : CPHInlineBase
         }
         
         var split = rawInput.Split(',');
-        var fuzzy = CharacterFuzzyTools.Get();
+        var fuzzy = CharacterFuzzyTools.Get(new PathManager(CPH));
         var characters = split.Select(c => fuzzy.SelectCharacterFuzzy(c));
         const string recurringCharactersKey = "userRecurringCharacters_Smash";
 
