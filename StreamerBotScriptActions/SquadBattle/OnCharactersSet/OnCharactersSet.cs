@@ -1,4 +1,5 @@
-﻿using Streamer.bot.Plugin.Interface;
+﻿using System;
+using Streamer.bot.Plugin.Interface;
 using Streamer.bot.Plugin.Interface.Model;
 
 namespace StreamerBotScriptActions.SquadBattle.OnCharactersSet;
@@ -83,6 +84,25 @@ public class CPHInline : CPHInlineBase
             message.Append("\n");
             CPH.SendMessage(message.ToString());
         }
+        return true;
+    }
+
+    public bool SetupMatchStocksAndPredictions()
+    {
+        var eventUsers = new List<GroupUser>();
+        eventUsers.AddRange(CPH.UsersInGroup(LeftTeam));
+        eventUsers.AddRange(CPH.UsersInGroup(RightTeam));
+
+        var leftTeamRoster = CPH.GetTwitchUserVarById<List<string>>(eventUsers[0].Id, TeamRoster);
+        var rightTeamRoster = CPH.GetTwitchUserVarById<List<string>>(eventUsers[1].Id, TeamRoster);
+
+        if (leftTeamRoster.Count != rightTeamRoster.Count)
+        {
+            CPH.SendMessage("Equipos desiguales!");
+        }
+        
+        CPH.SetGlobalVar("startingStocks", leftTeamRoster.Count * 3);
+        CPH.SetGlobalVar("eventPredictionDuration", Math.Max(leftTeamRoster.Count * 2, 5) * 60);
         return true;
     }
 }

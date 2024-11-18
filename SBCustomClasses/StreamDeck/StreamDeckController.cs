@@ -15,6 +15,7 @@ namespace SBCustomClasses.StreamDeck
         private TeamInfo _teamLeft;
         private TeamInfo _teamRight;
         private Dictionary<string, StreamDeckSmashCharacterButtonState> _buttonCharacterDict;
+        public int StartingStocks { get; private set; }
 
         private CharacterFuzzyTools _charactersFuzzySearch;
         
@@ -34,6 +35,7 @@ namespace SBCustomClasses.StreamDeck
             _teamRight = SetIds(rightTeam.TeamMembers);
             _teamLeft.Stocks = startingStocks;
             _teamRight.Stocks = startingStocks;
+            StartingStocks = startingStocks;
             _teamLeft.TeamName = leftTeam.Name;
             _teamRight.TeamName = rightTeam.Name;
 
@@ -248,7 +250,7 @@ namespace SBCustomClasses.StreamDeck
         
         private void CurrentCharacterButtonPressed(IInlineInvokeProxy CPH, int stockAdd, bool leftTeam)
         {
-            var side = leftTeam ? "Right" : "Left";
+            var side = leftTeam ? "Left" : "Right";
             CPH.LogInfo($"Updating stocks: {side} team");
             TeamInfo team;
             var streamDeckSection = StreamDeckSections.CurrentStocks;
@@ -447,7 +449,7 @@ namespace SBCustomClasses.StreamDeck
         /// </summary>
         /// <param name="CPH">Streamer bot interface</param>
         /// <returns></returns>
-        public bool ResetStreamDeckButtons(IInlineInvokeProxy CPH)
+        public void ResetStreamDeckButtons(IInlineInvokeProxy CPH)
         {
             CPH.LogInfo("Reset stream deck buttons");
             var buttonsLayout = _streamDeckConfiguration.Buttons.AllButtons;
@@ -457,7 +459,8 @@ namespace SBCustomClasses.StreamDeck
                 CPH.StreamDeckSetTitle(id, "");
                 CPH.StreamDeckSetBackgroundColor(id, "#00000000");
             }
-            return true;
+            
+            CPH.StreamDeckSetBackgroundLocal(_streamDeckConfiguration.Buttons.ContextButtonId, PathManager.LogoFile);
         }
         #endregion
     }

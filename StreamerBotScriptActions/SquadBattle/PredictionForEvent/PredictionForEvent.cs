@@ -19,10 +19,8 @@ public class CPHInline : CPHInlineBase
         var predictionOptions = new List<string>()
             { CPH.GetGlobalVar<string>(LeftTeamName), CPH.GetGlobalVar<string>(RightTeamName) };
         
-
         var predictionDuration = CPH.GetGlobalVar<int>("eventPredictionDuration");
         
-
         var currentPredictionJson = CPH.TwitchPredictionCreate(predictionTitle, predictionOptions, predictionDuration);
         if (string.IsNullOrEmpty(currentPredictionJson))
         {
@@ -92,6 +90,14 @@ public class CPHInline : CPHInlineBase
         CPH.StreamDeckShowOk(originButtonId);
         CPH.TwitchPredictionResolve(currentPrediction.Id.ToString(), currentPrediction.Outcomes[userIndex].Id.ToString());
         CPH.SetGlobalVar("ongoingPrediction", false);
+        return true;
+    }
+
+    public bool ResetPredictionData()
+    {
+        CPH.SetGlobalVar("eventPredictionDuration", 300);
+        CPH.SetGlobalVar("currentPredictionData", "");
+        CPH.SetGlobalVar("ongoingPrediction", true);
         return true;
     }
 }

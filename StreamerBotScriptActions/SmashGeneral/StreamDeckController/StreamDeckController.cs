@@ -76,8 +76,9 @@ public class CPHInline : CPHInlineBase
         var rightTeamGroup = CPH.UsersInGroup(RightTeam);
         var leftTeam = CreateTeam(leftTeamGroup, CPH.GetGlobalVar<string>(LeftTeamName));
         var rightTeam = CreateTeam(rightTeamGroup, CPH.GetGlobalVar<string>(RightTeamName));
+        var startingStocks = CPH.GetGlobalVar<int>("startingStocks");
         
-        _streamDeck.InitConnection(CPH, leftTeam, rightTeam);
+        _streamDeck.InitConnection(CPH, leftTeam, rightTeam, startingStocks);
         _matchPlaying = true;
         _matchType = CPH.GetGlobalVar<string>("currentGameMode");
         return true;
@@ -102,6 +103,8 @@ public class CPHInline : CPHInlineBase
         CPH.AddToCredits(_matchType, _streamDeck.GetCredits(), false);
         _matchPlaying = false;
         _matchType = "";
+        CPH.SetGlobalVar("startingStocks", 0);
+        CPH.SetGlobalVar("currentGameMode", "");
         return true;
     }
 
@@ -180,18 +183,29 @@ public class CPHInline : CPHInlineBase
     /// <returns></returns>
     public bool OverrideUserCharacters()
     {
-        CPH.LogDebug("Overriding characters");
+        var streamdeckAvailable = _streamDeck == null ? 1 : 0;
+        CPH.LogDebug($"Overriding characters with streamdeck: {streamdeckAvailable}");
         var fuzzyTools = CharacterFuzzyTools.Get(_streamDeck.PathManager);
-        CPH.TryGetArg("rawInput", out string rawInput);
-        CPH.TryGetArg("targetUserId", out string userId);
+        if(!CPH.TryGetArg("rawInput", out string rawInput)) 
+        {
+            CPH.LogError("rawInput not found");
+            return false;
+        }
+        if(!CPH.TryGetArg("targetUserId", out string userId)) 
+        {
+            CPH.LogError("targetUserId not found");
+            return false;
+        }
         
         // Before starting, we check if the source is different from a whisper
         if (rawInput.StartsWith(CharacterCommand))
         {
+            CPH.LogInfo("Normal command");
             rawInput = rawInput.Remove(0, CharacterCommand.Length);
         }
         else if (rawInput.StartsWith(OverrideCharacterCommand))
         {
+            CPH.LogInfo("Override command");
             var command = rawInput.Split(' ');
             var userLogin = CPH.TwitchGetUserInfoByLogin(command[1].Trim('@'));
             if (userLogin == null)
@@ -208,10 +222,11 @@ public class CPHInline : CPHInlineBase
             rawInput = rawInput.Trim();
 
         }
-        
+        CPH.LogInfo("Obtaining characters");
         // Obtain the characters
         var userSelectedCharacters = rawInput.Split(',');
         var resultCharactersForUser = fuzzyTools.SelectCharacterFuzzy(userSelectedCharacters);
+        CPH.LogDebug($"Obtained: {resultCharactersForUser}");
 
         CPH.SetTwitchUserVarById(userId, TeamRoster, resultCharactersForUser);
 
