@@ -236,7 +236,34 @@ public class CPHInline : CPHInlineBase
 
         return true;
     }
-    
+
+    /// <summary>
+    /// Overrides characters for all player with its mains
+    /// </summary>
+    /// <returns></returns>
+    public bool SetAllPlayersMains()
+    {
+        var eventUsers = new List<GroupUser>();
+        eventUsers.AddRange(CPH.UsersInGroup(LeftTeam));
+        eventUsers.AddRange(CPH.UsersInGroup(RightTeam));
+        var pathManager = _streamDeck.PathManager;
+        
+        
+        foreach(var user in eventUsers)
+        {
+            var userMains = CPH.GetTwitchUserVarById<List<string>>(user.Id, pathManager.GameMains);
+            if(userMains != null && userMains.Count > 0)
+            {
+                CPH.SetTwitchUserVarById(user.Id, TeamRoster, userMains);
+            }
+            else
+            {
+                CPH.SetTwitchUserVarById(user.Id, TeamRoster, new List<string>());
+            }
+        }
+        return true;
+    }
+
     public bool UpdatePlayerStocks()
     {
         if (!CPH.TryGetArg("value2Add", out long value2AddLong))
