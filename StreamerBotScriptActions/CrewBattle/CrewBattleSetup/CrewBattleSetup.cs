@@ -7,10 +7,14 @@ using System.Linq;
 
 public class CPHInline : CPHInlineBase
 {
-    private const string CrewBattleTeamNameRight = "Crew Battle Team Right";
-    private const string CrewBattleTeamNameLeft = "Crew Battle Team Left";
+    private const string LeftTeam = "teamLeft";
+    private const string RightTeam = "teamRight";
+    private const string LeftTeamName = "leftTeamName";
+    private const string RightTeamName = "rightTeamName";
     public bool Execute()
     {
+        CPH.ClearUsersFromGroup(LeftTeam);
+        CPH.ClearUsersFromGroup(RightTeam);
         if (!CPH.TryGetArg("rawInput", out string rawInput))
         {
             return false;
@@ -23,25 +27,9 @@ public class CPHInline : CPHInlineBase
             return false;
         }
         
-        CPH.SetGlobalVar(CrewBattleTeamNameLeft, teamNames[0]);
-        CPH.SetGlobalVar(CrewBattleTeamNameRight, teamNames[1]);
+        CPH.SetGlobalVar(LeftTeamName, teamNames[0]);
+        CPH.SetGlobalVar(RightTeamName, teamNames[1]);
         
         return true;
-    }
-
-    public List<string> GetLeftCrewBattleGroup()
-    {
-        return GetCrewBattleGroup(CrewBattleTeamNameLeft).ToList();
-    }
-    
-    public List<string> GetRightCrewBattleGroup()
-    {
-        return GetCrewBattleGroup(CrewBattleTeamNameRight).ToList();
-    }
-    
-    private IEnumerable<string> GetCrewBattleGroup(string groupName)
-    {
-        var users = CPH.UsersInGroup(groupName);
-        return users.Select(user => user.Id);
     }
 }

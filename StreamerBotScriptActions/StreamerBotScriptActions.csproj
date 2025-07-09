@@ -62,7 +62,6 @@
         <Compile Include="DebugAux\StreamDeckButtonIdentifier\StreamDeckButtonIdentifier.cs" />
         <Compile Include="FirstTo\ListFill\ListFill.cs" />
         <Compile Include="FirstTo\ListFill\ListFill.cs" />
-        <Compile Include="FirstTo\MatchFill\MatchFill.cs" />
         <Compile Include="FirstTo\MatchUpdater\MatchUpdater.cs" />
         <Compile Include="FirstTo\ObtainUsers\ObtainUsers.cs" />
         <Compile Include="Memeficator\MessageBoxFilter\MessageBoxFilter.cs" />
@@ -75,7 +74,6 @@
         <Compile Include="SmashGeneral\TitleManager\TitleManager.cs" />
         <Compile Include="SquadBattle\ExtractCharactersFuzzy\ExtractCharactersFuzzy.cs"/>
         <Compile Include="SquadBattle\ListFill\ListFill.cs"/>
-        <Compile Include="SquadBattle\MatchFill\MatchFill.cs" />
         <Compile Include="SquadBattle\OnCharactersSet\OnCharactersSet.cs"/>
         <Compile Include="SquadBattle\PredictionForEvent\PredictionForEvent.cs" />
         <Compile Include="SquadBattle\SquadBattle_ObtainUsers\SquadBattle_ObtainUsers.cs"/>

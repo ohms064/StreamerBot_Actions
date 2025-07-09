@@ -68,8 +68,8 @@ namespace SBCustomClasses.TSH.CurrentMatch
         [JsonProperty("prefix")] public string Prefix { get; set; } = "";
 
         [JsonProperty("startggMain")] public long StartggMain { get; set; }
-
-        [JsonProperty("mains")] public List<List<string>> Mains { get; set; }
+ 
+        [JsonProperty("mains")] public Dictionary<string, List<List<string>>> Mains { get; set; }
 
         [JsonProperty("avatar")] public string Avatar { get; set; } = "";
 

@@ -1,11 +1,4 @@
-﻿//code bastardized by Mustached_Maniac
-//https://ko-fi.com/mustached_maniac/tip
-
-using Streamer.bot.Plugin.Interface;
-
-namespace StreamerBotScriptActions.Spotify.Spotify_Controls;
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -14,7 +7,7 @@ using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-public class CPHInline : CPHInlineBase
+public class CPHInline 
 {
     private HttpClient _httpClient;
     string _accessToken;
@@ -240,7 +233,7 @@ public class CPHInline : CPHInlineBase
                 {
                     endIndex = _userInput.Length;
                 }
-
+				
                 string uri = _userInput.Substring(startIndex, endIndex - startIndex);
                 _trackUri = uri;
                 return GetTrack(_trackUri);
@@ -252,6 +245,7 @@ public class CPHInline : CPHInlineBase
             }
             else
             {
+            	CPH.SendMessage("Searching normally", true);
                 return SearchSong(_userInput);
             }
         }
@@ -537,10 +531,6 @@ public class CPHInline : CPHInlineBase
         try
         {
             _accessToken = CPH.GetGlobalVar<string>("spotifyAccessToken", true);
-            // while (CPH.GetGlobalVar<bool>("lockStatus", false))
-            // {
-            //     CPH.Wait(100);
-            // }
 
             string apiUrl = "https://api.spotify.com/v1/me/player";
             string commandEndpoint = "";

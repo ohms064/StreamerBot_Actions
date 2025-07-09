@@ -2,9 +2,12 @@
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using SBCustomClasses.StreamDeck.Configuration;
 using SBCustomClasses.TSH.Base;
+using SocketIO.Serializer.NewtonsoftJson;
 using Streamer.bot.Plugin.Interface;
 
 namespace SBCustomClasses.StreamDeck
@@ -40,6 +43,8 @@ namespace SBCustomClasses.StreamDeck
                 CPH.GetGlobalVar<Dictionary<string, StreamDeckSmashCharacterButtonState>>("streamDeckCharacterButtons")
                 ?? new Dictionary<string, StreamDeckSmashCharacterButtonState>();
             _charactersFuzzySearch = CharacterFuzzyTools.Get(PathManager);
+            
+            CPH.LogDebug($"Connected to: localhost with socketio");
         }
 
         /// <summary>
@@ -61,7 +66,7 @@ namespace SBCustomClasses.StreamDeck
             _charactersFuzzySearch.UpdateGame(PathManager);
             SetupTeams(CPH, leftTeam, rightTeam, startingStocks);
             UpdateCurrentMatch(CPH);
-            UpdateListData(CPH);
+            //UpdateListData(CPH);
             RefreshStreamDeck(CPH, StreamDeckSections.BothTeams | StreamDeckSections.StartingSections );
         }
 

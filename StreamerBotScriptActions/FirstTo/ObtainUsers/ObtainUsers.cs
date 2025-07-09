@@ -24,6 +24,7 @@ public class CPHInline : CPHInlineBase
 
         if (args.Length < 2)
         {
+            CPH.SendMessage("Número incorrecto de parámetros");
             return false;
         }
 

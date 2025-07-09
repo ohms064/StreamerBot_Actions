@@ -72,12 +72,13 @@ public class CPHInline : CPHInlineBase
 
     public bool StartMatch()
     {
+        CPH.LogInfo("Starting match");
         var leftTeamGroup = CPH.UsersInGroup(LeftTeam);
         var rightTeamGroup = CPH.UsersInGroup(RightTeam);
         var leftTeam = CreateTeam(leftTeamGroup, CPH.GetGlobalVar<string>(LeftTeamName));
         var rightTeam = CreateTeam(rightTeamGroup, CPH.GetGlobalVar<string>(RightTeamName));
         var startingStocks = CPH.GetGlobalVar<int>("startingStocks");
-        
+        CPH.LogInfo($"Starting connection {_streamDeck}");
         _streamDeck.InitConnection(CPH, leftTeam, rightTeam, startingStocks);
         _matchPlaying = true;
         _matchType = CPH.GetGlobalVar<string>("currentGameMode");
@@ -105,6 +106,38 @@ public class CPHInline : CPHInlineBase
         _matchType = "";
         CPH.SetGlobalVar("startingStocks", 0);
         CPH.SetGlobalVar("currentGameMode", "");
+        return true;
+    }
+
+    /// <summary>
+    /// Add user to a team based on the received name, it will do a fuzzy search of the team
+    /// </summary>
+    public bool AddUserToNamedTeam()
+    {
+        if (!CPH.TryGetArg("teamName", out string teamName))
+        {
+            return false;
+        }
+
+        var leftName = CPH.GetGlobalVar<string>(LeftTeamName);
+        var rightName = CPH.GetGlobalVar<string>(RightTeamName);
+        
+        var teamNames = new string[] { leftName, rightName };
+        var resultTeamName = CharacterFuzzyTools.ExtractFuzzy(teamName, teamNames);
+
+        if (resultTeamName == leftName)
+        {
+            AddUserToLeftTeam();
+        }
+        else if (resultTeamName == rightName)
+        {
+            AddUserToRightTeam();
+        }
+        else
+        {
+            return false;
+        }
+        
         return true;
     }
 
