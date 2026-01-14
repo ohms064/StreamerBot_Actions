@@ -1,6 +1,6 @@
-﻿using Streamer.bot.Plugin.Interface;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
+using System.Linq;
+using Streamer.bot.Plugin.Interface;
 using Newtonsoft.Json;
 using SBCustomClasses.MiscData;
 
@@ -8,68 +8,70 @@ namespace StreamerBotScriptActions.StreamGeneral.StreamCounter;
 
 public class CPHInline : CPHInlineBase
 {
-    private string _gameName;
-    private StreamCounterData _counterData;
     private const string CounterKey = "Counters";
-
-    public bool Execute()
-    {
-        return ResetGame();
-    }
-
-    public bool ResetGame()
-    {
-        SaveCounterData();
-        var success = CPH.TryGetArg<string>("gameBoxArt", out var gameBoxArt);
-        success &= CPH.TryGetArg("gameName", out _gameName) || CPH.TryGetArg("game", out _gameName);
-        UpdateCounterData();
-        if (!success) return false;
-        
-        var streamDeckButton = CPH.GetGlobalVar<string>("CountersStreamDeckButton");
-        Task.Run(async () =>
-        {
-            CPH.StreamDeckSetBackgroundUrl(streamDeckButton, gameBoxArt);
-            await Task.Delay(1000);
-            UpdateStreamDeck();
-                
-        });
-
-        return true;
-    }
 
     public bool ReloadGameCounters()
     {
-        UpdateCounterData();
+        if (!CPH.TryGetArg("sdButtonId", out string sdButtonId))
+        {
+            return false;
+        }
+        GetCounterData(sdButtonId);
         return true;
     }
 
     public bool UpdateCounter()
     {
-        _counterData.AddCounters();
-        UpdateStreamDeck();
+        if (!CPH.TryGetArg("sdButtonId", out string sdButtonId))
+        {
+            return false;
+        }
+        if (!CPH.TryGetArg("category", out string category))
+        {
+            category = sdButtonId;
+        }
+
+        var counterData = GetCounterData(category);
+        counterData.AddCounters(counterData.CurrentSession);
+        SaveCounterData(counterData, category);
+        CPH.LogDebug($"{counterData.GlobalCounter} {counterData.StreamCounter}");
+        UpdateStreamDeck(sdButtonId ,counterData);
         return true;
     }
     
     
     // ReSharper disable once MemberCanBePrivate.Global
-    public bool SaveCounterData()
+    public bool SaveCounterData(StreamCounterData counterData, string category)
     {
-        if (string.IsNullOrEmpty(_gameName) || _counterData == null)
+        var gameName = CPH.GetGlobalVar<string>("TwitchLastGame");
+        if (string.IsNullOrEmpty(gameName))
         {
             return false;
         }
-        CPH.SetGlobalVar($"{CounterKey}-{_gameName}", JsonConvert.SerializeObject(_counterData));
+
+        CPH.SetGlobalVar(GetCounterKey(category), JsonConvert.SerializeObject(counterData));
         return true;
     }
 
     public bool SetSession()
     {
+        if (!CPH.TryGetArg("sdButtonId", out string sdButtonId))
+        {
+            return false;
+        }
         if (!CPH.TryGetArg("sessionId", out string sessionId))
         {
             return false;
         }
-        _counterData.SetCounterId(sessionId);
-        UpdateStreamDeck();
+        if (!CPH.TryGetArg("category", out string category))
+        {
+            category = sdButtonId;
+        }
+
+        var counterData = GetCounterData(category);
+        counterData.CurrentSession = sessionId;
+        SaveCounterData(counterData, category);
+        UpdateStreamDeck(sdButtonId, counterData);
         return true;
     }
     
@@ -79,54 +81,75 @@ public class CPHInline : CPHInlineBase
         {
             return false;
         }
-        _counterData.UpdateSpecificSession(sessionId);
-        UpdateStreamDeck();
+        if (!CPH.TryGetArg("sdButtonId", out string sdButtonId))
+        {
+            return false;
+        }
+        
+        if (!CPH.TryGetArg("category", out string category))
+        {
+            category = sdButtonId;
+        }
+
+        var counterData = GetCounterData(category);
+        counterData.UpdateSpecificSession(sessionId);
+        SaveCounterData(counterData, category);
+        UpdateStreamDeck(sdButtonId, counterData);
         return true;
     }
 
     public bool ResetStreamCounter()
     {
-        _counterData.ResetStreamCounter();
-        UpdateStreamDeck();
+        var globals = CPH.GetGlobalVarValues();
+
+        foreach (var globalVariable in globals.Where(x => x.VariableName.StartsWith(CounterKey)))
+        {
+            
+            var data = StreamCounterData.FromJson(globalVariable.Value.ToString()); 
+            if(data == null) 
+                continue;
+            data.StreamCounter = 0;
+            var category = globalVariable.VariableName.Substring(globalVariable.VariableName.LastIndexOf("->", StringComparison.Ordinal) + 2);
+            SaveCounterData(data, category);
+        }
+            
+            
         return true;
     }
 
     public bool ExposeValues()
     {
-        if (_counterData == null)
+        if (!CPH.TryGetArg("sdButtonId", out string sdButtonId))
         {
             return false;
         }
-        CPH.SetArgument("globalCount", _counterData.GlobalCounter.ToString());
-        CPH.SetArgument("streamCount", _counterData.StreamCounter.ToString());
-        CPH.SetArgument("sessionCount", _counterData.SessionCounters.TryGetValue(_counterData.CurrentCounterId, 
-            out var counter) ? counter.ToString() : "");
-        CPH.SetArgument("sessionName", _counterData.CurrentCounterId.ToString());
+        if (!CPH.TryGetArg("category", out string category))
+        {
+            category = sdButtonId;
+        }
+
+        var counterData = GetCounterData(category);
+        CPH.SetArgument("globalCount", counterData.GlobalCounter.ToString());
+        CPH.SetArgument("streamCount", counterData.StreamCounter.ToString());
+        CPH.SetArgument("sessionCount", counterData.CurrentSessionCounter.ToString());
+        CPH.SetArgument("sessionName", counterData.CurrentSession);
         return true;
     }
 
-    private void UpdateCounterData()
+    private StreamCounterData GetCounterData(string category)
     {
-        var counterJson = CPH.GetGlobalVar<string>($"{CounterKey}-{_gameName}") ?? "";
-        _counterData = StreamCounterData.FromJson(counterJson) ?? new StreamCounterData();
+        var counterJson = CPH.GetGlobalVar<string>(GetCounterKey(category)) ?? "";
+        return StreamCounterData.FromJson(counterJson) ?? new StreamCounterData();
     }
 
-    private string FormatCounterData(StreamCounterData counterData)
+    private string GetCounterKey(string category)
     {
-        StringBuilder builder = new StringBuilder();
-        builder.Append($"Gl: {counterData.GlobalCounter}\n");
-        builder.Append($"Str: {counterData.StreamCounter}\n");
-        if (!counterData.SessionCounters.ContainsKey(counterData.CurrentCounterId)) return builder.ToString();
-        
-        builder.Append($"{counterData.CurrentCounterId}:\n{counterData.SessionCounters[counterData.CurrentCounterId]}");
-        
-        return builder.ToString();
+        var gameName = CPH.GetGlobalVar<string>("TwitchLastGame");
+        return string.IsNullOrEmpty(gameName) ? "" : $"{CounterKey}->{gameName}->{category}";
     }
 
-    private void UpdateStreamDeck()
+    private void UpdateStreamDeck(string sdButtonId, StreamCounterData counterData)
     {
-        var streamDeckButton = CPH.GetGlobalVar<string>("CountersStreamDeckButton");
-        var streamDeckTitle = FormatCounterData(_counterData);
-        CPH.StreamDeckSetTitle(streamDeckButton, streamDeckTitle);
+        CPH.StreamDeckSetTitle(sdButtonId, counterData.ToFormatedString());
     }
 }

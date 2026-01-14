@@ -80,6 +80,7 @@
         <Compile Include="SquadBattle\StreamDeckButtonsUpdate\StreamDeckButtonsUpdate.cs" />
         <Compile Include="SquadBattle\TwitchTitleManager\TwitchTitleManager.cs" />
         <Compile Include="SquadBattle\UserReady\UserReady.cs" />
+        <Compile Include="StreamGeneral\StreamCounter\StreamCounter.cs" />
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\SBCustomClasses\SBCustomClasses.csproj">
