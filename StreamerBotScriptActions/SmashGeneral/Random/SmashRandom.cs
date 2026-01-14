@@ -1,4 +1,8 @@
-﻿using Streamer.bot.Plugin.Interface;
+﻿using System.Linq;
+using Newtonsoft.Json;
+using SBCustomClasses.StreamDeck.Configuration;
+using SBCustomClasses.TSH.Base;
+using Streamer.bot.Plugin.Interface;
 using Streamer.bot.Plugin.Interface.Model;
 
 namespace StreamerBotScriptActions.SmashGeneral.Random;
@@ -12,20 +16,32 @@ public class CPHInline : CPHInlineBase
 {
     private const string LeftTeam = "teamLeft";
     private const string RightTeam = "teamRight";
-    private int indexToUpdate = 0;
+    private int _indexToUpdate = 0;
+    private List<string> _ironManChallengeList;
+    private BaseGameInfo _smashGameInfo;
+    private StreamDeckConfiguration _streamDeckConfiguration;
+
+    // TODO: Move into path manager
+    private const string SmashConfigurationFilePath =
+        "D:/Streams/TournamentStreamHelper/user_data/games/ssbu/base_files/config.json";
 
     public bool Execute()
     {
-        indexToUpdate = 0;
+        _indexToUpdate = 0;
+        var pathManager = new PathManager(CPH);
+        var smashFileContent = File.ReadAllText(SmashConfigurationFilePath);
+        _smashGameInfo = JsonConvert.DeserializeObject<BaseGameInfo>(smashFileContent);
+        //TODO: Check StreamDeckGeneral.cs
+        var json = File.ReadAllText(
+            "C:/Users/Ohms/RiderProjects/SBCustomClasses/SBCustomClasses/StreamDeck/Configuration/smash_events_configuration.json");
+        _streamDeckConfiguration = JsonConvert.DeserializeObject<StreamDeckConfiguration>(json);
         return true;
     }
     
     public bool UpdatePlayer()
     {
     	CPH.LogInfo($"Starting random characters command");
-        var pathManager = new PathManager(CPH);
-        var result = File.ReadAllText(pathManager.CharactersFile);
-        var characters = result.Split('\n');
+        var characters = GetCharacterList();
         if (!CPH.TryGetArg("rawInput", out string rawInput))
         {
         	CPH.LogInfo($"WTF rawInput not found");
@@ -57,27 +73,27 @@ public class CPHInline : CPHInlineBase
 
         CPH.LogInfo("Generando personajes!");
 
-        if (eventUsers.Count <= indexToUpdate)
+        if (eventUsers.Count <= _indexToUpdate)
         {
             return false;
         }
         
-        var user = eventUsers[indexToUpdate];
+        var user = eventUsers[_indexToUpdate];
         var randomCharacters = GetRandomCharacters(randomGenerator, characters, count);
-        // Sending the command, maybe a little lazy but it should work
+        // Sending the command. Maybe a little lazy, but it should work
         var chars = string.Join(",", randomCharacters);
         CPH.LogInfo($"Personajes para {user.Username} {chars}!");
         CPH.SendMessage($"!o {user.Username} {chars}", false);
 
-        indexToUpdate++;
+        _indexToUpdate++;
         
         return true;
     }
 
-    private List<string> GetRandomCharacters(Random randomGenerator, string[] characters, int count)
+    private List<string> GetRandomCharacters(Random randomGenerator, IEnumerable<string> characters, int count)
     {
         var result = new List<string>();
-        var nonRepeatedCharacters = new List<string>(characters);
+        var nonRepeatedCharacters = characters.ToList();
         nonRepeatedCharacters.Remove("Random");
         for (var i = 0; i < count; i++)
         {
@@ -92,9 +108,7 @@ public class CPHInline : CPHInlineBase
     public bool MessageRandomCharacters()
     {
         int count = 1;
-        var pathManager = new PathManager(CPH);
-        var result = File.ReadAllText(pathManager.CharactersFile);
-        var characters = result.Split('\n');
+        var characters = GetCharacterList();
         if (CPH.TryGetArg<string>("rawInput", out var rawInput))
         {
             if (int.TryParse(rawInput, out var parseResult))
@@ -107,5 +121,57 @@ public class CPHInline : CPHInlineBase
         var characterResult = GetRandomCharacters(randomGenerator, characters, count);
         CPH.SendMessage(string.Join(", ", characterResult));
         return true;
+    }
+
+    public bool ResetIronManChallenge()
+    {
+        _ironManChallengeList = GetCharacterList().ToList();
+        _ironManChallengeList.Remove("Random");
+        return true;
+    }
+
+    public bool PopIronManCharacter()
+    {
+        if (_ironManChallengeList.Count == 0)
+        {
+            return false;
+        }
+        var randomGenerator = new Random(DateTime.Now.Millisecond);
+        var randomIndex = randomGenerator.Next(_ironManChallengeList.Count);
+        var character =  _ironManChallengeList[randomIndex].Trim();
+        _ironManChallengeList.RemoveAt(randomIndex);
+        CPH.SendMessage($"Next: {character}");
+        CPH.SetArgument("ironManCharacter", character);
+        if (_smashGameInfo == null) return false;
+        if (!_smashGameInfo.CharacterToCodename.TryGetValue(character, out var codename)) return false;
+        
+        var selectedTheme = CPH.GetGlobalVar<string>("IronManSmashIcons");
+        var currentGame = CPH.GetGlobalVar<string>("CurrentGameId");
+        CPH.LogDebug($"Getting game {currentGame}");
+        var buttonIcons = _streamDeckConfiguration.Theming.GetButtonsIcons(currentGame, selectedTheme, out bool found);
+        
+        var userInfo = CPH.TwitchGetBroadcaster();
+        var skinIndex = CPH.GetTwitchUserVarById<int>(userInfo.UserId, $"skin_{character}");
+        var path = buttonIcons.GetCompletePath(codename.Codename, skinIndex);
+        CPH.SetArgument("ironManPortrait", path);
+        return true;
+    }
+
+    private IEnumerable<string> GetCharacterList()
+    {
+        var pathManager = new PathManager(CPH);
+        try
+        {
+            var file = File.OpenText(pathManager.CharactersFile);
+            var result = file.ReadToEnd();
+            file.Close();
+            return result.Split('\n');
+        }
+        catch(FileNotFoundException)
+        {
+            CPH.LogError($"File {pathManager.CharactersFile} not found");
+            return ["Verify the file name."];
+        }
+
     }
 }
