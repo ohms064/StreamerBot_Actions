@@ -9,34 +9,21 @@ using SBCustomClasses.StreamDeck;
 
 public class CPHInline : CPHInlineBase
 {
-    // Move to PathManager
-    private const string SmashConfigurationFilePath =
-        "D:/Streams/TournamentStreamHelper/user_data/games/ssbu/base_files/config.json";
+    
     private BaseGameInfo _smashGameInfo;
     private StreamDeckConfiguration _streamDeckConfiguration;
     public bool Execute()
     {
-        var smashFileContent = File.ReadAllText(SmashConfigurationFilePath);
-        _smashGameInfo = JsonConvert.DeserializeObject<BaseGameInfo>(smashFileContent);
-        //TODO: Check StreamDeckGeneral.cs
-        var json = File.ReadAllText(
-            "C:/Users/Ohms/RiderProjects/SBCustomClasses/SBCustomClasses/StreamDeck/Configuration/smash_events_configuration.json");
-        _streamDeckConfiguration = JsonConvert.DeserializeObject<StreamDeckConfiguration>(json);
+        var pathManager =  new PathManager(CPH);
+        _smashGameInfo = pathManager.GetBaseGameInfo();
+        _streamDeckConfiguration = pathManager.GetStreamDeckConfiguration();
         return UpdateCharacterSkin();
     }
     
     private bool UpdateCharacterSkin()
     {
-        
-        if (!CPH.TryGetArg<string>("userId", out var userId))
-        {
-            CPH.SendMessage("wtf");
-            return false;
-        }
-        
         if (!CPH.TryGetArg("rawInput", out string rawInput))
         {
-            CPH.SendMessage("wtf 2");
             return false;
         }
 
@@ -49,6 +36,10 @@ public class CPHInline : CPHInlineBase
         }
 
         int index = 0;
+        if (!CPH.TryGetArg<string>("userId", out var userId))
+        {
+            return false;
+        }
 
         if (split.Length == 3)
         {
@@ -86,10 +77,9 @@ public class CPHInline : CPHInlineBase
             if (!_smashGameInfo.CharacterToCodename.TryGetValue(character, out var codename)) return false;
 
             var selectedTheme = CPH.GetGlobalVar<string>("IronManSmashIcons");
-            var currentGame = CPH.GetGlobalVar<string>("CurrentGameId");
-            CPH.LogDebug($"Getting game {currentGame}");
+            CPH.LogDebug($"Getting game {pathManager.CurrentGameId}");
             var buttonIcons =
-                _streamDeckConfiguration.Theming.GetButtonsIcons(currentGame, selectedTheme, out bool found);
+                _streamDeckConfiguration.Theming.GetButtonsIcons(pathManager.CurrentGameId, selectedTheme, out bool found);
 
             var skinIndex = CPH.GetTwitchUserVarById<int>(userId, $"skin_{character}");
             var path = buttonIcons.GetCompletePath(codename.Codename, skinIndex);
@@ -101,7 +91,9 @@ public class CPHInline : CPHInlineBase
             CPH.SetArgument("skinFound", false);
         }
         
-        StreamDeckTSHConnection.Get(CPH).RefreshCharacters(CPH);
+        // TODO: Nice to have so the stream decks updates if there is a character already there
+        // but it fails the second time for some reason and stops the execution.
+        //StreamDeckTSHConnection.Get(CPH).RefreshCharacters(CPH);
         return true;
     }
 }

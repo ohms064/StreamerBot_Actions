@@ -20,21 +20,13 @@ public class CPHInline : CPHInlineBase
     private List<string> _ironManChallengeList;
     private BaseGameInfo _smashGameInfo;
     private StreamDeckConfiguration _streamDeckConfiguration;
-
-    // TODO: Move into path manager
-    private const string SmashConfigurationFilePath =
-        "D:/Streams/TournamentStreamHelper/user_data/games/ssbu/base_files/config.json";
-
+    
     public bool Execute()
     {
         _indexToUpdate = 0;
         var pathManager = new PathManager(CPH);
-        var smashFileContent = File.ReadAllText(SmashConfigurationFilePath);
-        _smashGameInfo = JsonConvert.DeserializeObject<BaseGameInfo>(smashFileContent);
-        //TODO: Check StreamDeckGeneral.cs
-        var json = File.ReadAllText(
-            "C:/Users/Ohms/RiderProjects/SBCustomClasses/SBCustomClasses/StreamDeck/Configuration/smash_events_configuration.json");
-        _streamDeckConfiguration = JsonConvert.DeserializeObject<StreamDeckConfiguration>(json);
+        _smashGameInfo = pathManager.GetBaseGameInfo();
+        _streamDeckConfiguration = pathManager.GetStreamDeckConfiguration();
         return true;
     }
     
@@ -142,6 +134,7 @@ public class CPHInline : CPHInlineBase
         _ironManChallengeList.RemoveAt(randomIndex);
         CPH.SendMessage($"Next: {character}");
         CPH.SetArgument("ironManCharacter", character);
+        CPH.LogDebug($"smash game infno: {JsonConvert.SerializeObject(_smashGameInfo)}");
         if (_smashGameInfo == null) return false;
         if (!_smashGameInfo.CharacterToCodename.TryGetValue(character, out var codename)) return false;
         

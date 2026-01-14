@@ -121,10 +121,9 @@ namespace SBCustomClasses.StreamDeck
 
         #endregion
 
-        private void UpdateFromTSHFile(string path)
+        private void ResetFromTSHFile()
         {
-            var smashGameJson = File.ReadAllText(path);
-            _gameInfo = JsonConvert.DeserializeObject<BaseGameInfo>(smashGameJson);
+            _gameInfo = PathManager.GetBaseGameInfo();
         }
     }
 }

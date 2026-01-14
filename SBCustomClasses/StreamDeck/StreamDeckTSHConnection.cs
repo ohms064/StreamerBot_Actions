@@ -33,12 +33,8 @@ namespace SBCustomClasses.StreamDeck
         private StreamDeckTSHConnection(IInlineInvokeProxy CPH)
         {
             PathManager = new PathManager(CPH);
-            CPH.LogDebug($"Deserializing: {PathManager.StreamDeckConfig}");
-            var streamDeckConfigJson = File.ReadAllText(PathManager.StreamDeckConfig);
-            _streamDeckConfiguration = JsonConvert.DeserializeObject<StreamDeckConfiguration>(streamDeckConfigJson);
-            CPH.LogDebug($"Deserializing: {PathManager.GameConfigFile}");
-            var smashGameJson = File.ReadAllText(PathManager.GameConfigFile);
-            _gameInfo = JsonConvert.DeserializeObject<BaseGameInfo>(smashGameJson);
+            _streamDeckConfiguration = PathManager.GetStreamDeckConfiguration();
+            _gameInfo = PathManager.GetBaseGameInfo();
             _buttonCharacterDict =
                 CPH.GetGlobalVar<Dictionary<string, StreamDeckSmashCharacterButtonState>>("streamDeckCharacterButtons")
                 ?? new Dictionary<string, StreamDeckSmashCharacterButtonState>();
@@ -59,9 +55,8 @@ namespace SBCustomClasses.StreamDeck
         {
             CPH.LogDebug("Updating game Id");
             PathManager.UpdateGameId(CPH);
-            CPH.LogDebug($"Paths: {PathManager.GameConfigFile}\n{PathManager.CharactersFile}");
             CPH.LogDebug("Updating TSH config file");
-            UpdateFromTSHFile(PathManager.GameConfigFile);
+            ResetFromTSHFile();
             CPH.LogDebug("Fuzzy search");
             _charactersFuzzySearch.UpdateGame(PathManager);
             SetupTeams(CPH, leftTeam, rightTeam, startingStocks);
