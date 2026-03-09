@@ -16,6 +16,9 @@ public class CPHInline : CPHInlineBase
 {
     private const string LeftTeam = "teamLeft";
     private const string RightTeam = "teamRight";
+    private const string IronManCount = "ironManCount";
+    private const string IronManMaxCount = "ironManMaxCount";
+    
     private int _indexToUpdate = 0;
     private List<string> _ironManChallengeList;
     private BaseGameInfo _smashGameInfo;
@@ -119,6 +122,7 @@ public class CPHInline : CPHInlineBase
     {
         _ironManChallengeList = GetCharacterList().ToList();
         _ironManChallengeList.Remove("Random");
+        CPH.SetGlobalVar(IronManCount, 0);
         return true;
     }
 
@@ -132,6 +136,15 @@ public class CPHInline : CPHInlineBase
         var randomIndex = randomGenerator.Next(_ironManChallengeList.Count);
         var character =  _ironManChallengeList[randomIndex].Trim();
         _ironManChallengeList.RemoveAt(randomIndex);
+        var ironManCount = CPH.GetGlobalVar<int>(IronManCount) + 1;
+        var maxCount = CPH.GetGlobalVar<int>(IronManMaxCount);
+        if (ironManCount > maxCount)
+        {
+            CPH.SetGlobalVar(IronManMaxCount, ironManCount);
+        }
+        CPH.SetGlobalVar(IronManCount, IronManCount);
+        CPH.SetArgument(IronManCount, ironManCount);
+        CPH.SetArgument(IronManMaxCount, maxCount);
         CPH.SendMessage($"Next: {character}");
         CPH.SetArgument("ironManCharacter", character);
         CPH.LogDebug($"smash game infno: {JsonConvert.SerializeObject(_smashGameInfo)}");
