@@ -1,0 +1,106 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props"
+            Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')"/>
+    <PropertyGroup>
+        <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+        <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+        <ProjectGuid>{CD7F56C5-1F5D-4B76-AD55-894F63F046F6}</ProjectGuid>
+        <OutputType>Library</OutputType>
+        <AppDesignerFolder>Properties</AppDesignerFolder>
+        <RootNamespace>StreamerBotScriptActions</RootNamespace>
+        <AssemblyName>StreamerBotScriptActions</AssemblyName>
+        <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+        <FileAlignment>512</FileAlignment>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+        <PlatformTarget>AnyCPU</PlatformTarget>
+        <DebugSymbols>true</DebugSymbols>
+        <DebugType>full</DebugType>
+        <Optimize>false</Optimize>
+        <OutputPath>bin\Debug\</OutputPath>
+        <DefineConstants>DEBUG;TRACE</DefineConstants>
+        <ErrorReport>prompt</ErrorReport>
+        <WarningLevel>4</WarningLevel>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+        <PlatformTarget>AnyCPU</PlatformTarget>
+        <DebugType>pdbonly</DebugType>
+        <Optimize>true</Optimize>
+        <OutputPath>bin\Release\</OutputPath>
+        <DefineConstants>TRACE</DefineConstants>
+        <ErrorReport>prompt</ErrorReport>
+        <WarningLevel>4</WarningLevel>
+    </PropertyGroup>
+    <ItemGroup>
+        <Reference Include="FuzzySharp, Version=1.0.4.0, Culture=neutral, processorArchitecture=MSIL">
+            <HintPath>..\packages\FuzzySharp.2.0.2\lib\net461\FuzzySharp.dll</HintPath>
+        </Reference>
+        <Reference Include="System"/>
+        <Reference Include="System.Core"/>
+        <Reference Include="System.Data"/>
+        <Reference Include="System.Xml"/>
+        <Reference Include="D:\Streams\Streamer.bot-x64-0.2.2\Streamer.bot.Plugin.Interface.dll"/>
+        <Reference Include="D:\Streams\Streamer.bot-x64-0.2.2\Streamer.bot.Common.dll"/>
+        <Reference Include="D:\Streams\Streamer.bot-x64-0.2.2\Streamer.bot.Auth.dll"/>
+        <Reference Include="D:\Streams\Streamer.bot-x64-0.2.2\Streamer.bot.EmoteHandlers.dll"/>
+        <Reference Include="D:\Streams\Streamer.bot-x64-0.2.2\NAudio.dll"/>
+        <Reference Include="D:\Streams\Streamer.bot-x64-0.2.2\NAudio.Core.dll"/>
+        <Reference Include="D:\Streams\Streamer.bot-x64-0.2.2\Newtonsoft.Json.dll"/>
+        <Reference Include="D:\Streams\Streamer.bot-x64-0.2.2\Twitch.Common.dll"/>
+        <Reference Include="D:\Streams\Streamer.bot-x64-0.2.2\websocket-sharp.dll"/>
+        <Reference Include="D:\Streams\Streamer.bot-x64-0.2.2\dlls\NCrontab.dll"/>
+    </ItemGroup>
+    <PropertyGroup>
+        <LangVersion>latest</LangVersion>
+        <NoWarn>CS0114</NoWarn> <!-- Ignore CS114 errors -->
+    </PropertyGroup>
+    <ItemGroup>
+        <Compile Include="CrewBattle\CrewBattlePlayersSetup\CrewBattlePlayersSetup.cs" />
+        <Compile Include="CrewBattle\CrewBattleSetup\CrewBattleSetup.cs" />
+        <Compile Include="CrewBattle\CrewBattleStreamDeckSetup\CrewBattleStreamDeckSetup.cs" />
+        <Compile Include="DebugAux\StreamDeckButtonIdentifier\StreamDeckButtonIdentifier.cs" />
+        <Compile Include="FirstTo\ListFill\ListFill.cs" />
+        <Compile Include="FirstTo\ListFill\ListFill.cs" />
+        <Compile Include="FirstTo\MatchUpdater\MatchUpdater.cs" />
+        <Compile Include="FirstTo\ObtainUsers\ObtainUsers.cs" />
+        <Compile Include="Memeficator\MessageBoxFilter\MessageBoxFilter.cs" />
+        <Compile Include="Properties\AssemblyInfo.cs"/>
+        <Compile Include="SmashGeneral\PlayerCharacters\PlayerCharactersManager.cs" />
+        <Compile Include="SmashGeneral\Random\SmashRandom.cs" />
+        <Compile Include="SmashGeneral\SkinManager\SmashSkinManager.cs" />
+        <Compile Include="SmashGeneral\StreamDeckController\StreamDeckController.cs" />
+        <Compile Include="SmashGeneral\StreamDeckGeneral\StreamDeckGeneral.cs" />
+        <Compile Include="SmashGeneral\TitleManager\TitleManager.cs" />
+        <Compile Include="SquadBattle\ExtractCharactersFuzzy\ExtractCharactersFuzzy.cs"/>
+        <Compile Include="SquadBattle\ListFill\ListFill.cs"/>
+        <Compile Include="SquadBattle\OnCharactersSet\OnCharactersSet.cs"/>
+        <Compile Include="SquadBattle\PredictionForEvent\PredictionForEvent.cs" />
+        <Compile Include="SquadBattle\SquadBattle_ObtainUsers\SquadBattle_ObtainUsers.cs"/>
+        <Compile Include="SquadBattle\StreamDeckButtonsUpdate\StreamDeckButtonsUpdate.cs" />
+        <Compile Include="SquadBattle\TwitchTitleManager\TwitchTitleManager.cs" />
+        <Compile Include="SquadBattle\UserReady\UserReady.cs" />
+        <Compile Include="StreamGeneral\StreamCounter\StreamCounter.cs" />
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\SBCustomClasses\SBCustomClasses.csproj">
+            <Project>{439ba243-0f49-492c-9034-e3dd4900e8f1}</Project>
+            <Name>SBCustomClasses</Name>
+        </ProjectReference>
+    </ItemGroup>
+    <ItemGroup>
+        <None Include="packages.config"/>
+    </ItemGroup>
+    <ItemGroup>
+      <Folder Include="SmashGeneral\IronManChallenge\" />
+    </ItemGroup>
+    <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>
+    <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+         Other similar extension points exist, see Microsoft.Common.targets.
+    <Target Name="BeforeBuild">
+    </Target>
+    <Target Name="AfterBuild">
+    </Target>
+    -->
+
+</Project>

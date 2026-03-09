@@ -1,0 +1,119 @@
+﻿{
+  "buttons": {
+    "left_character_buttons": [
+      "fd847dea-f830-43d2-9bda-2ccd4bb0a213",
+      "59005484-7d6e-4efb-aa63-b242dc72c50a",
+      "c7470403-2f19-48c1-b305-44f833f3b42b",
+      "370e25ba-ecc8-40c0-b0a3-76e0d0c97378",
+      "6dd778bc-3464-4b4d-8dfc-8be6307c654d",
+      "a1ef3b1f-3476-4f5a-8f86-e565f84700da",
+      "aa6ed952-1d5d-49ff-9d53-a3707a598e76",
+      "b8882c8c-0ed1-44b7-9ad3-01e051b1d2a3",
+      "408f0f2e-a620-4bda-bd48-65a3f054079d",
+      "67b3b008-0baa-4ff1-85ce-0dbb1b8f48d7",
+      "a9084365-75bb-437f-94f9-480104e022a1",
+      "31beaebb-b94b-4547-82f9-97597f3d88a2",
+      "a4f20fc3-08cc-4268-9564-cc5bd1226a32"
+    ],
+    "left_team_buttons": [
+      "b977eb6f-fa4f-4a28-aab6-483b3e4fce0e",
+      "d5c92d8d-e2eb-40d9-861b-b4b2c0d36aa5",
+      "b978f683-8257-46a6-8681-3e0c58ab0ea5",
+      "4b05fff7-6a31-4afa-a484-3fcd2de13860",
+      "a0591330-c085-4e76-aadc-eefa56097ef1",
+      "2b450c45-acd1-48d3-8eca-956a3123ee13",
+      "3c815203-2761-452f-a00f-488dfa085945",
+      "bb4534d2-d487-473f-820d-a58caee529ee",
+      "0060b74f-6acb-42da-8d9e-66c6a1a1895a",
+      "c2192959-d272-4b34-9333-8ccd4845e1f9",
+      "de9c005c-5345-4a8e-a0ca-e9ea2fb1d890",
+      "32c64c24-512e-4581-ab50-3935f516d137",
+      "26bd9241-36f7-4ce6-8e26-b48d95a1d1a1"
+    ],
+    "right_character_buttons": [
+      "246a69ac-a5a6-4ddf-b73f-661814a9ca59",
+      "ab843aaf-4932-46f2-aff4-ac33afbb8dbd",
+      "3b9d82a6-34c4-457f-aae2-c960adc856b2",
+      "b92aaa34-1cad-4353-8f0a-04cf753d3769",
+      "57012a0b-fb08-4b6b-8f0b-b797a726d599",
+      "72f6e518-667d-4040-8fa9-82babbc2ad44",
+      "3518b50b-42f5-49a0-b37d-89b872803114",
+      "5817b990-c28e-4524-baa4-c0cde5d48186",
+      "7d896091-7180-4b29-9044-76f354b1d246",
+      "9c643905-13cf-4387-82f5-414e5521b20b",
+      "dc392a3d-605d-485a-8b32-33dbba8f7ca7",
+      "976abb06-5293-4f85-90aa-ec7178dbd0e1",
+      "ba8e2945-d5b3-426f-8f27-fea09c3bc7b1"
+    ],
+    "right_team_buttons": [
+      "10df9d0d-4c68-4ec3-9afb-bab604a29b0f",
+      "61633802-a506-4173-81a5-fc758e38f6d5",
+      "d11e9858-4edd-451d-b91b-f9b14d657195",
+      "da15700d-0e38-4990-9d67-cd38fa34f57b",
+      "341461d4-addd-4cb8-8082-b28a3c455805",
+      "4f8b39b7-fedb-4773-abfd-bbf12a95a68d",
+      "415e0fb6-ca72-4820-83af-fecc6e767090",
+      "d41e9e15-a5df-4971-9fde-9a926c33bad4",
+      "5b8a4175-24f9-4dc2-aafb-08fb73231cea",
+      "08141b18-a3f8-4966-94a7-e064dd01e6b6",
+      "019d38ad-7592-49f5-a496-70245a596573",
+      "6c30888a-26b1-424b-93a0-25a2500c1679",
+      "ce3dcb5d-3506-4dc7-ae17-d2e3f2e926e3"
+    ],
+    "right_character_portraits": [
+      "259397e1-569b-4fdf-a3db-6f4577af11ac",
+      "e527bc2c-24e5-4a4e-8514-ffaa11484e25"
+    ],
+    "left_character_portraits": [
+      "01d1b2c1-39a6-46bf-9e1e-27277b3efeae",
+      "b94a0584-c41a-4fc5-a03c-45bf41146b6c"
+    ],
+    "left_button_id": "a0cb21de-05b2-477b-a7b1-ec4afcc590be",
+    "right_button_id": "fb313b14-7fb7-4b3c-be36-0090a94fc644",
+    "left_stocks_button_id": "332515bd-64a8-4c0b-bf75-08b98515b327",
+    "right_stocks_buttons_id": "24c86ecf-c942-4fee-86fb-0a61c42eadb7",
+    "contexT_buttons_id": "2O--mkUvvm1fRLfva2ZES"
+  },
+  "theming": {
+    "selected_color": "#1ed86150",
+    "already_used_color": "#FF000050",
+    "unselected_color": "#00000050",
+    "game_icons":
+    {
+      "ssbu":
+      {
+        "character_portraits": {
+          "path": "D:/Streams/TournamentStreamHelper/user_data/games/ssbu/full",
+          "filename": "chara_1_<char_codename>_0<skin_index>.png",
+          "default": "chara_1_random_00.png"
+        },
+        "character_stocks": {
+          "path": "D:/Streams/TournamentStreamHelper/user_data/games/ssbu/base_files/icon",
+          "filename": "chara_2_<char_codename>_0<skin_index>.png",
+          "default": "chara_2_random_00.png"
+        }
+      },
+      "roa2":
+      {
+        "character_portraits": {
+          "path": "C:/Users/Ohms/RiderProjects/TournamentStreamHelper/user_data/games/roa2/costume",
+          "filename": "<char_codename>-0<skin_index>.png",
+          "default": "chara_1_random_00.png"
+        },
+        "character_stocks": {
+          "path": "C:/Users/Ohms/RiderProjects/TournamentStreamHelper/user_data/games/roa2/costume",
+          "filename": "<char_codename>-0<skin_index>.png",
+          "default": "default.png"
+        }
+      },
+      "sf6":
+      {
+        "character_stocks": {
+          "path": "C:/Users/Ohms/RiderProjects/TournamentStreamHelper/user_data/games/sf6/pixel_art_restore",
+          "filename": "<char_codename>_0.png",
+          "default": "default.png"
+        }
+      }
+    }
+  }
+}
