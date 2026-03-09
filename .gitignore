@@ -10,6 +10,13 @@
 *.userosscache
 *.sln.docstates
 
+# Rider / IDE files
+.idea/
+*.sln.iml
+
+# Local developer config
+Directory.Build.props
+
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 
@@ -31,6 +38,9 @@ bld/
 [Oo]bj/
 [Ll]og/
 [Ll]ogs/
+
+release/build/
+release/dist/
 
 # Visual Studio 2015/2017 cache/options directory
 .vs/
